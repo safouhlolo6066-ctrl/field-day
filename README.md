@@ -1,1 +1,1 @@
-# field-day
+Jena line page (static). No data here.

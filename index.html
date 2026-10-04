@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>🧭 خط اليوم — جينا</title>
+<link rel="manifest" href="manifest.json">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#f2f2f7;--card:#ffffff;--ink:#1c1c1e;--sub:#6e6e73;--line:rgba(60,60,67,.12);--fill:rgba(118,118,128,.12);
+--blue:#007aff;--green:#34c759;--orange:#ff9500;--red:#ff3b30;--teal:#0a84ff;--chrome:rgba(249,249,251,.78);--sh:0 1px 2px rgba(0,0,0,.04),0 6px 20px rgba(0,0,0,.05)}
+@media (prefers-color-scheme:dark){:root{--bg:#000;--card:#1c1c1e;--ink:#f5f5f7;--sub:#98989f;--line:rgba(84,84,88,.6);--fill:rgba(118,118,128,.24);--chrome:rgba(28,28,30,.72);--sh:none}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font:100%/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Tahoma,system-ui,sans-serif}
+body{margin:0;background:var(--bg);color:var(--ink);font-size:16px;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+header{position:relative;background:var(--chrome);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);padding:14px 16px 12px;border-bottom:.5px solid var(--line)}
+h1{margin:0;font-size:1.65rem;line-height:1.1;letter-spacing:-.02em;font-weight:800}
+.sub{color:var(--sub);font-size:.85rem;margin-top:3px}
+#sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+#sum span{background:var(--card);border-radius:14px;padding:8px 10px;box-shadow:var(--sh);font-size:.78rem;color:var(--sub)}
+#sum b{display:block;font-size:1.35rem;line-height:1.15;color:var(--ink);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.pb{height:6px;background:var(--fill);border-radius:3px;margin-top:10px;overflow:hidden}#bar{height:100%;width:0;background:linear-gradient(90deg,#30d158,#34c759);border-radius:3px;transition:width .45s cubic-bezier(.2,.8,.2,1)}
+.st2{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.78rem;margin-top:9px;color:var(--sub)}
+#net{border-radius:999px;padding:3px 10px;background:var(--fill);color:var(--ink);font-weight:600;white-space:nowrap}#net.off{background:rgba(255,149,0,.18);color:#c46a00}#net.wait{background:rgba(0,122,255,.14);color:var(--blue)}
+#loc button{font:inherit;font-size:.75rem;border:0;border-radius:999px;padding:3px 10px;margin-right:6px;background:var(--blue);color:#fff;font-weight:600}
+#msg{display:none;margin:12px 16px 0;background:rgba(255,149,0,.14);color:#a35700;border-radius:14px;padding:12px 14px;font-size:.9rem;text-align:center;line-height:1.6}
+#view{display:none;margin:12px 16px 0;background:rgba(0,122,255,.1);color:var(--blue);border-radius:14px;padding:10px 14px;font-size:.85rem;text-align:center;font-weight:600}
+#adv{display:none;margin:12px 16px 0;background:var(--card);border-radius:16px;padding:12px 14px;font-size:.88rem;line-height:1.75;box-shadow:var(--sh)}
+.seg{display:flex;margin:14px 16px 0;background:var(--fill);border-radius:10px;padding:2px;gap:2px}
+.f{flex:1;border:0;background:transparent;border-radius:8px;padding:7px 4px;font:inherit;font-size:.8rem;font-weight:600;color:var(--ink);white-space:nowrap;transition:background .2s,box-shadow .2s}
+.f.on{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.sr{padding:10px 16px 0}#q{width:100%;padding:9px 12px;border:0;border-radius:10px;font:inherit;font-size:.95rem;background:var(--fill);color:var(--ink);outline:none}
+#sortbar{display:none;position:sticky;top:110px;z-index:9;margin:10px 16px 0;background:var(--chrome);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-radius:14px;padding:10px 12px;gap:8px;align-items:center;flex-wrap:wrap;box-shadow:var(--sh)}
+#sortbar button{border:0;border-radius:10px;padding:9px 14px;font:inherit;font-weight:700;font-size:.9rem}#sortok{background:var(--green);color:#fff}#sortno{background:var(--fill);color:var(--ink)}#sortmsg{flex-basis:100%;font-size:.8rem;color:var(--blue)}
+#stick{position:sticky;top:0;z-index:9;background:var(--chrome);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);padding:0 0 10px;border-bottom:.5px solid var(--line)}#stick .seg{margin-top:10px}
+#list{padding:12px 16px 20px}
+.c{background:var(--card);border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.c::before{content:"";position:absolute;inset-inline-start:0;top:14px;bottom:14px;width:4px;border-radius:0 4px 4px 0;background:var(--fill)}
+.c.vis::before{background:var(--blue)}.c.ok::before{background:var(--green)}.c.nb::before{background:var(--orange)}.c.nv::before{background:var(--red)}
+.c.srt{display:flex;align-items:center;gap:8px;padding:10px 12px}.c.srt .nm{font-size:.95rem}.c.srt button{border:0;background:var(--fill);color:var(--ink);border-radius:10px;width:40px;height:38px;font-size:1rem}
+.hd{display:flex;align-items:flex-start;gap:10px}.n{min-width:30px;height:30px;border-radius:15px;background:var(--fill);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:var(--sub);font-variant-numeric:tabular-nums}.tt{flex:1;min-width:0}
+.nm{font-weight:700;font-size:1.05rem;line-height:1.3;letter-spacing:-.01em}.mt{font-size:.8rem;color:var(--sub);margin-top:3px}.mt a{color:var(--blue);text-decoration:none}
+.chips{display:flex;flex-direction:column;gap:5px;align-items:flex-end}.tm{font-size:.72rem;font-weight:600;background:rgba(52,199,89,.14);color:#1f8a3b;border-radius:999px;padding:3px 9px;white-space:nowrap;text-decoration:none}.lc{background:rgba(0,122,255,.12);color:var(--blue)}.ofl{background:rgba(255,149,0,.16);color:#a35700}
+.goal{font-size:.82rem;background:rgba(0,122,255,.07);color:var(--ink);border-radius:12px;padding:9px 11px;margin-top:10px;line-height:1.65}
+.st{font-size:.76rem;color:var(--sub);margin-top:8px;line-height:1.5}
+.dq{font-size:.8rem;background:rgba(255,149,0,.14);color:#a35700;border-radius:10px;padding:7px 10px;margin-top:9px}
+.row{display:flex;gap:8px;margin-top:10px}
+.row button{flex:1;padding:11px 6px;border-radius:12px;border:0;background:var(--fill);font:inherit;font-size:.92rem;font-weight:600;color:var(--ink);transition:transform .1s ease-out,background .2s,color .2s}
+button:active{transform:scale(.97)}
+.row button.on.g{background:var(--green);color:#fff}.row button.on.r{background:var(--red);color:#fff}.row button.on.a{background:var(--orange);color:#fff}
+select,textarea{width:100%;margin-top:10px;padding:10px 12px;border:0;border-radius:12px;font:inherit;font-size:.9rem;background:var(--fill);color:var(--ink);resize:none;outline:none;-webkit-appearance:none;appearance:none}
+.ft{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px;flex-wrap:wrap}.sv{font-size:.75rem;color:var(--sub);min-height:14px}
+.lk{border:0;background:none;color:var(--sub);font:inherit;font-size:.78rem;padding:4px 0}.lk.ph,.lk.gl{color:var(--blue);font-weight:600}
+.emp{text-align:center;color:var(--sub);padding:40px 0}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:10;display:flex;gap:8px;justify-content:center;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:var(--chrome);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);border-top:.5px solid var(--line)}
+nav button{flex:1;max-width:180px;border:0;border-radius:14px;padding:12px 8px;font:inherit;font-size:.85rem;font-weight:700;background:var(--fill);color:var(--ink)}nav #addbtn{background:var(--blue);color:#fff}
+button:disabled,select:disabled,textarea:disabled{opacity:.45}
+#sheetbg{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.32);display:flex;align-items:flex-end;justify-content:center}
+#sheet{width:100%;max-width:520px;background:var(--card);border-radius:20px 20px 0 0;padding:18px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(0,0,0,.18);animation:up .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes up{from{transform:translateY(100%)}to{transform:none}}
+#sheet h3{margin:0 0 10px;font-size:1.05rem;letter-spacing:-.01em}#sheet input{width:100%;margin-top:8px;padding:12px;border:0;border-radius:12px;background:var(--fill);color:var(--ink);font:inherit;font-size:1rem;outline:none}
+#sheet .acts{display:flex;gap:8px;margin-top:14px}#sheet .acts button{flex:1;border:0;border-radius:14px;padding:13px;font:inherit;font-weight:700;font-size:.95rem;background:var(--fill);color:var(--ink)}#sheet .acts .ok{background:var(--blue);color:#fff}#sheet .acts .ok.red{background:var(--red)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}button:active{transform:none}}
+@media (prefers-reduced-transparency:reduce){header,nav,#sortbar{background:var(--card);-webkit-backdrop-filter:none;backdrop-filter:none}}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="h1">🧭 خط اليوم</h1><div class="sub" id="sub">⏳ عم يحمّل…</div>
+  <div id="sum"></div><div class="pb"><div id="bar"></div></div>
+  <div class="st2"><span id="loc"></span><span id="net">…</span></div>
+</header>
+<div id="msg"></div>
+<div id="view">👁 نسختك للمشاهدة بس — المندوب هو يلي بيسجّل.</div>
+<div id="adv"></div>
+<div id="sortbar"><button id="sortok">✅ احفظ الترتيب</button><button id="sortno">إلغاء</button><span id="sortmsg"></span></div>
+<div id="stick"><div class="seg" role="tablist"><button class="f on" data-f="all">الكل</button><button class="f" data-f="left">الباقي</button><button class="f" data-f="vis">انزار</button><button class="f" data-f="nv">ما انزار</button></div>
+<div class="sr"><input id="q" type="search" inputmode="search" autocomplete="off" placeholder="بحث — اسم، رقم عام، أو هاتف"></div></div>
+<div id="list"></div>
+<nav id="tools"><button id="advbtn" style="display:none">💡 النصيحة</button><button id="sortbtn">↕️ رتّب</button><button id="addbtn">＋ زبون جديد</button></nav>
+<script>
+(function () {
+  'use strict';
+  var API = '__API_URL__';
+  var qs = new URLSearchParams(location.search), T = (qs.get('t') || '').replace(/[^a-z0-9]/g, ''), K = (qs.get('k') || '').replace(/[^A-Za-z0-9]/g, '');
+  var TG = window.Telegram && window.Telegram.WebApp;
+  try { if (TG) { TG.ready(); TG.expand(); if (TG.colorScheme === 'dark') document.documentElement.style.colorScheme = 'dark'; } } catch (e) {}
+  var LS = 'jl_' + T;
+  var DEMO = false, D = null, S = {}, Q = [], VIEW = false, filt = 'all', q = '', sorting = false, LOC = null, locState = '…', syncing = false;
+  function $(id) { return document.getElementById(id); }
+  function esc(x) { return String(x == null ? '' : x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function norm(x) { return String(x || '').replace(/[إأآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').replace(/[\s\/\\*\-]+/g, ' ').toLowerCase().trim(); }
+  function store() { try { localStorage.setItem(LS, JSON.stringify({ D: D, S: S, Q: Q, init: initData(), at: Date.now() })); } catch (e) {} }
+  function restore() { try { var o = JSON.parse(localStorage.getItem(LS) || 'null'); if (o && o.D) { D = o.D; S = o.S || {}; Q = o.Q || []; return o; } } catch (e) {} return null; }
+  function initData() { var d = TG && TG.initData; if (d) return d; try { var o = JSON.parse(localStorage.getItem(LS) || 'null'); return (o && o.init) || ''; } catch (e) { return ''; } }
+  function msg(t) { var m = $('msg'); m.innerHTML = t; m.style.display = t ? 'block' : 'none'; }
+  function hm(ms) { return new Date(ms).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }); }
+  function rid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+
+  // ── network
+  function post(body) {
+    return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body), redirect: 'follow' }).then(function (r) { return r.json(); });
+  }
+  function net() {
+    var e = $('net'); var n = Q.length;
+    if (!navigator.onLine) { e.className = 'off'; e.textContent = '📴 أوفلاين' + (n ? ' · ' + n + ' بانتظار النت' : ''); }
+    else if (n) { e.className = 'wait'; e.textContent = '⏳ ' + n + ' عم تنحفظ'; }
+    else { e.className = ''; e.textContent = '☁️ كلو محفوظ'; }
+  }
+  function sync() {
+    if (DEMO) { Q = []; net(); return; }
+    if (syncing || !Q.length || !navigator.onLine || VIEW) { net(); return; }
+    syncing = true; net();
+    var batch = Q.slice(0, 200);
+    post({ act: 'save', t: T, k: K, initData: initData(), deviceNow: Date.now(), ops: batch }).then(function (j) {
+      syncing = false;
+      if (j && j.ok) { var done = {}; (j.saved || []).forEach(function (id) { done[id] = 1; }); Q = Q.filter(function (o) { return !done[o.id]; }); store(); net(); if (Q.length) setTimeout(sync, 500); }
+      else if (j && j.err === 'closed') { msg('🔒 انقفل خط اليوم وانسجّل بالملف — ما عاد فيك تعدّل.'); D.status = 'closed'; render(); }
+      else { net(); setTimeout(sync, 15000); }
+    }).catch(function () { syncing = false; net(); setTimeout(sync, 15000); });
+  }
+  window.addEventListener('online', function () { net(); sync(); });
+  window.addEventListener('offline', net);
+  setInterval(sync, 20000);
+
+  // ── state
+  function applyOp(o) {
+    if (o.t === 'order') { if (o.rows && o.rows.length) D.order = o.rows; return; }
+    var x = st(o.r); ['visited', 'bought', 'reason', 'note', 'phone', 'lat', 'lng', 'acc', 'kind', 'name', 'area', 'delreq', 'delreason'].forEach(function (k) { if (o[k] != null) x[k] = o[k]; });
+    if (o.vt) x.vt = o.vt; else if (o.ats && o.visited === '1' && !x.vt) x.vt = hm(o.ats);
+    if (o.off) x.off = 1;
+  }
+  function st(r) { if (!S[r]) S[r] = { r: r }; return S[r]; }
+  function shops() {
+    var base = (D.shops || []).map(function (s) { return { r: +s.r, g: s.g, n: s.n, p: s.p, s: s.s, t: s.t, a: s.a, pv: s.pv, ps: s.ps, sl: s.sl }; });
+    Object.keys(S).forEach(function (k) { var x = S[k]; if (+k >= 1000 && x.kind === 'new') base.push({ r: +k, g: 'جديد', n: x.name + (x.area && String(x.name).indexOf(x.area) < 0 ? ' / ' + x.area : ''), p: x.phone || '', s: '🆕 زبون جديد — انضاف اليوم', isNew: 1 }); });
+    var pos = {}; (D.order || []).forEach(function (r, i) { pos[r] = i; });
+    var b0 = {}; base.forEach(function (s, i) { b0[s.r] = i; });
+    base.sort(function (a, b) { return (pos[a.r] != null ? pos[a.r] : 1e5 + b0[a.r]) - (pos[b.r] != null ? pos[b.r] : 1e5 + b0[b.r]); });
+    return base.filter(function (s) { var x = S[s.r] || {}; return x.kind !== 'newx' && x.delok !== 'ok'; });
+  }
+  function vis(s) { var x = S[s.r] || {}; return x.visited === '1' || (!x.visited && s.pv); }
+  function buy(s) { var x = S[s.r] || {}; return vis(s) && (x.bought === '1' || (!x.bought && s.ps)); }
+
+  // ── location (Telegram LocationManager → GPS) — works offline
+  function setLoc(la, ln, ac) { LOC = { lat: (+la).toFixed(6), lng: (+ln).toFixed(6), acc: ac ? Math.round(ac) : '', at: Date.now() }; locState = '✓'; showLoc(); }
+  function showLoc() { $('loc').innerHTML = '📍 الموقع: ' + (locState === '✓' ? 'شغّال ✓' : esc(locState) + ' <button id="locbtn">فعّل</button>'); }
+  function gps(cb) { if (!navigator.geolocation) { locState = 'مو مدعوم'; showLoc(); if (cb) cb(); return; }
+    navigator.geolocation.getCurrentPosition(function (p) { setLoc(p.coords.latitude, p.coords.longitude, p.coords.accuracy); if (cb) cb(); }, function () { locState = 'مو مسموح'; showLoc(); if (cb) cb(); }, { enableHighAccuracy: true, maximumAge: 60000, timeout: 15000 }); }
+  function tgLoc(cb) { try { TG.LocationManager.getLocation(function (d) { if (d && d.latitude) setLoc(d.latitude, d.longitude, d.horizontal_accuracy); else { locState = 'مو مسموح'; showLoc(); } if (cb) cb(); }); } catch (e) { gps(cb); } }
+  function refreshLoc(cb) { if (TG && TG.LocationManager && TG.LocationManager.isInited && TG.LocationManager.isLocationAvailable) tgLoc(cb); else gps(cb); }
+  function initLoc() { try { if (TG && TG.LocationManager && TG.isVersionAtLeast && TG.isVersionAtLeast('8.0')) { TG.LocationManager.init(function () { if (TG.LocationManager.isLocationAvailable) tgLoc(); else gps(); }); return; } } catch (e) {} gps(); }
+  function fresh() { return LOC && Date.now() - LOC.at < 180000; }
+
+  // ── ops
+  function ask(title, fields, okLabel, cb, red) {
+    var bg = document.createElement('div'); bg.id = 'sheetbg';
+    bg.innerHTML = '<div id="sheet" role="dialog" aria-modal="true"><h3>' + esc(title) + '</h3>' + fields.map(function (f, i) { return '<input id="ask' + i + '" ' + (f.type ? 'type="' + f.type + '" inputmode="' + (f.type === 'tel' ? 'tel' : 'text') + '" ' : '') + 'placeholder="' + esc(f.ph || '') + '" value="' + esc(f.val || '') + '">'; }).join('') + '<div class="acts"><button class="no">إلغاء</button><button class="ok' + (red ? ' red' : '') + '">' + esc(okLabel || 'تم') + '</button></div></div>';
+    document.body.appendChild(bg);
+    var close = function () { bg.remove(); };
+    bg.addEventListener('click', function (e) { if (e.target === bg || e.target.classList.contains('no')) close(); if (e.target.classList.contains('ok')) { var v = fields.map(function (f, i) { return document.getElementById('ask' + i).value.trim(); }); close(); cb(v); } });
+    var first = document.getElementById('ask0'); if (first) setTimeout(function () { first.focus(); }, 60);
+  }
+  function hap(k) { try { if (TG && TG.HapticFeedback) { if (k === 'ok') TG.HapticFeedback.notificationOccurred('success'); else TG.HapticFeedback.impactOccurred('light'); } } catch (e) {} }
+  function push(r, fields) {
+    if (VIEW || D.status !== 'open') return;
+    var x = st(r); var o = { id: rid(), ts: Date.now(), t: 'v', r: r };
+    for (var k in fields) { o[k] = fields[k]; x[k] = fields[k]; }
+    if (!navigator.onLine) { o.off = 1; x.off = 1; }
+    Q.push(o); store(); net(); hap(fields.visited === '1' || fields.bought === '1' ? 'ok' : ''); setTimeout(sync, 1500);
+  }
+  function stampLoc(r, fields) { if (fresh()) { fields.lat = LOC.lat; fields.lng = LOC.lng; fields.acc = LOC.acc; } return fields; }
+
+  // ── render
+  function summary(L) {
+    var n = L.length, v = 0, b = 0, nv = 0;
+    L.forEach(function (s) { var x = S[s.r] || {}; if (vis(s)) v++; if (buy(s)) b++; if (x.visited === '0') nv++; });
+    $('sum').innerHTML = '<span><b>' + v + '<small style="font-size:.6em;color:var(--sub)">/' + n + '</small></b>انزار</span><span><b>' + b + '</b>تم بيع</span><span><b>' + (n - v - nv) + '</b>باقي</span>';
+    $('bar').style.width = (n ? Math.round(v * 100 / n) : 0) + '%';
+  }
+  function card(s, i) {
+    var x = S[s.r] || {}, v = vis(s), b = buy(s), no = x.visited === '0', nb = v && x.bought === '0';
+    if (sorting) return '<div class="c srt"><span class="n">' + (i + 1) + '</span><div class="tt nm">' + esc(s.n) + '</div><button data-m="top" data-r="' + s.r + '">⤒</button><button data-m="up" data-r="' + s.r + '">▲</button><button data-m="dn" data-r="' + s.r + '">▼</button></div>';
+    var cls = v ? (b ? ' ok' : (nb ? ' nb' : ' vis')) : (no ? ' nv' : '');
+    var ph = x.phone || s.p || '';
+    var h = '<div class="c' + cls + '" id="c' + s.r + '"><div class="hd"><span class="n">' + (i + 1) + '</span><div class="tt"><div class="nm">' + esc(s.n) + '</div><div class="mt">'
+      + (s.isNew ? '🆕 جديد' : 'رقم ' + esc(s.g || '—')) + (ph && !/^x+$/i.test(ph) ? ' · <a href="tel:' + esc(ph.split('/')[0].trim()) + '">☎ ' + esc(ph) + '</a>' : ' · ☎ —') + '</div></div><div class="chips">'
+      + (v && (x.vt || s.pv) ? '<span class="tm' + (x.off ? ' ofl' : '') + '">🕒 ' + esc(x.vt || 'بالملف') + (x.off ? ' 📴' : '') + '</span>' : '')
+      + (x.lat ? '<a class="tm lc" target="_blank" href="https://maps.google.com/?q=' + x.lat + ',' + x.lng + '">📍 الزيارة</a>' : (s.sl ? '<a class="tm lc" target="_blank" href="https://maps.google.com/?q=' + s.sl + '">📍 المحل</a>' : ''))
+      + '</div></div>';
+    if (s.t || s.a) h += '<div class="goal">' + [s.t, s.a ? '💡 ' + String(s.a).split('\n').join('<br>💡 ') : ''].filter(Boolean).join('<br>') + '</div>';
+    if (s.s) h += '<div class="st">' + esc(s.s) + '</div>';
+    if (x.delreq === '1') h += '<div class="dq">⏳ طلبت إلغاء هالزبون — ناطر موافقة صفوح' + (x.delreason ? ' (' + esc(x.delreason) + ')' : '') + '</div>';
+    h += '<div class="row"><button data-a="v1" data-r="' + s.r + '" class="' + (v ? 'on g' : '') + '">✅ انزار</button><button data-a="v0" data-r="' + s.r + '" class="' + (no ? 'on r' : '') + '">⭕ لم يتم زيارته</button></div>';
+    if (v) {
+      h += '<div class="row"><button data-a="b1" data-r="' + s.r + '" class="' + (b ? 'on g' : '') + '">💰 تم بيع</button><button data-a="b0" data-r="' + s.r + '" class="' + (nb ? 'on a' : '') + '">✖️ لم يتم بيعه</button></div>';
+      if (nb) h += '<select data-r="' + s.r + '"><option value="">— سبب عدم البيع —</option>' + (D.reasons || []).map(function (o) { return '<option' + (o === x.reason ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select>';
+    }
+    h += '<textarea data-r="' + s.r + '" rows="1" placeholder="📝 ملاحظات (اختياري)">' + esc(x.note || '') + '</textarea>';
+    h += '<div class="ft"><span class="sv" id="sv' + s.r + '"></span><span>'
+      + (x.lat ? '' : '<button class="lk gl" data-a="gl" data-r="' + s.r + '">📍 سجّل موقع المحل</button> · ')
+      + '<button class="lk ph" data-a="ph" data-r="' + s.r + '">☎ ' + (x.phone ? 'عدّل الرقم' : 'أضف رقم') + '</button>'
+      + (s.isNew ? ' · <button class="lk" data-a="nx" data-r="' + s.r + '">🗑️ احذف</button>' : (x.delreq === '1' ? '' : ' · <button class="lk" data-a="dq" data-r="' + s.r + '">🗑️ طلب إلغاء</button>')) + '</span></div></div>';
+    return h;
+  }
+  function visible(s) { var x = S[s.r] || {}; if (sorting) return true; if (q && norm(s.n + ' ' + s.g + ' ' + s.p + ' ' + (x.phone || '')).indexOf(q) < 0) return false;
+    if (filt === 'left') return !vis(s) && x.visited !== '0'; if (filt === 'vis') return vis(s); if (filt === 'nv') return x.visited === '0'; return true; }
+  function render() {
+    var L = shops(), k = 0;
+    $('list').innerHTML = L.map(function (s) { var c = visible(s) ? card(s, k) : ''; k++; return c; }).join('') || '<p class="emp">' + (q ? 'ما لقيت محل 🔍' : 'ما في محلات بهالفلتر 👌') + '</p>';
+    $('sortbar').style.display = sorting ? 'flex' : 'none'; $('tools').style.display = sorting || VIEW ? 'none' : 'flex'; document.body.style.paddingBottom = sorting || VIEW ? '24px' : '';
+    summary(L);
+    var lock = VIEW || D.status !== 'open';
+    if (lock) document.querySelectorAll('#list button,#list select,#list textarea').forEach(function (e) { e.disabled = true; });
+  }
+  function head() {
+    $('h1').textContent = '🧭 خط اليوم — ' + D.rep;
+    $('sub').textContent = String(D.dateTxt || D.day || '') + ' · ' + D.tab + (D.area ? ' · ' + D.area : '') + (String(D.day) > '2090' ? ' · 🧪 تجربة' : '');
+    if (D.advice) { $('adv').innerHTML = String(D.advice).replace(/\n/g, '<br>'); $('advbtn').style.display = 'inline-block'; }
+    $('view').style.display = VIEW ? 'block' : 'none';
+    if (D.status !== 'open') msg('🔒 انقفل خط اليوم وانسجّل بالملف — ما عاد فيك تعدّل.');
+  }
+
+  // ── events
+  document.addEventListener('click', function (ev) {
+    var t = ev.target;
+    if (t.id === 'locbtn') { try { if (TG && TG.LocationManager && TG.LocationManager.isInited && !TG.LocationManager.isAccessGranted) TG.LocationManager.openSettings(); else refreshLoc(); } catch (e) { gps(); } return; }
+    if (t.id === 'advbtn') { var a = $('adv'); a.style.display = a.style.display === 'block' ? 'none' : 'block'; return; }
+    if (!D || VIEW || D.status !== 'open') return;
+    if (t.id === 'addbtn') { ask('➕ زبون جديد', [{ ph: 'اسم المحل' }, { ph: 'المنطقة', val: D.area || '' }, { ph: 'رقم الهاتف (إذا موجود)', type: 'tel' }], 'أضف', function (v) { if (!v[0]) return;
+      var r = 1000; Object.keys(S).forEach(function (k) { if (+k >= r) r = +k + 1; }); push(r, stampLoc(r, { kind: 'new', name: v[0], area: v[1], phone: v[2].replace(/[^\d+]/g, ''), visited: '1', vt: hm(Date.now()) })); filt = 'all'; render(); }); return; }
+    if (t.id === 'sortbtn') { sorting = true; $('sortmsg').textContent = 'رتّب حسب مشيتك: ⤒ لأول الخط · ▲ لفوق · ▼ لتحت'; render(); return; }
+    if (t.id === 'sortno') { sorting = false; D.order = D._order0 || D.order; render(); return; }
+    if (t.id === 'sortok') { var rows = shops().map(function (s) { return s.r; }); Q.push({ id: rid(), ts: Date.now(), t: 'order', rows: rows }); D.order = rows; sorting = false; store(); sync(); render(); return; }
+    var f = t.closest && t.closest('.f'); if (f) { filt = f.getAttribute('data-f'); document.querySelectorAll('.f').forEach(function (z) { z.classList.toggle('on', z === f); }); render(); return; }
+    var m = t.closest && t.closest('button[data-m]');
+    if (m) { if (!D._order0) D._order0 = (D.order || []).slice(); var L = shops().map(function (s) { return s.r; }), r0 = +m.getAttribute('data-r'), i = L.indexOf(r0); L.splice(i, 1); var j = m.getAttribute('data-m') === 'top' ? 0 : (m.getAttribute('data-m') === 'up' ? Math.max(0, i - 1) : Math.min(L.length, i + 1)); L.splice(j, 0, r0); D.order = L; render(); var el = document.querySelectorAll('.c.srt')[j]; if (el) el.scrollIntoView({ block: 'center' }); return; }
+    var b = t.closest && t.closest('button[data-a]'); if (!b) return;
+    var r1 = +b.getAttribute('data-r'), x = st(r1), a2 = b.getAttribute('data-a');
+    if (a2 === 'v1') { if (x.visited === '1') return; push(r1, stampLoc(r1, { visited: '1', vt: hm(Date.now()) })); if (!fresh()) refreshLoc(function () { if (fresh() && !st(r1).lat) { push(r1, stampLoc(r1, {})); render(); } }); }
+    if (a2 === 'v0') push(r1, { visited: x.visited === '0' ? '' : '0', bought: '', reason: '' });
+    if (a2 === 'b1') push(r1, { bought: x.bought === '1' ? '' : '1', reason: '' });
+    if (a2 === 'b0') push(r1, { bought: x.bought === '0' ? '' : '0' });
+    if (a2 === 'gl') { var e0 = $('sv' + r1); if (e0) e0.textContent = '⏳ عم ياخد الموقع…'; refreshLoc(function () { if (fresh()) { push(r1, stampLoc(r1, {})); render(); var e1 = $('sv' + r1); if (e1) e1.textContent = '✓ انحفظ موقع المحل'; } else { var e2 = $('sv' + r1); if (e2) e2.textContent = '⚠️ ما قدرت آخد الموقع — فعّل الموقع'; } }); return; }
+    if (a2 === 'ph') { ask('☎ رقم الهاتف', [{ ph: '09xxxxxxxx', val: x.phone || '', type: 'tel' }], 'احفظ', function (v) { var np = v[0].replace(/[^\d+]/g, ''); if (np && np.length < 6) return; push(r1, { phone: np }); render(); }); return; }
+    if (a2 === 'dq') { ask('🗑️ ليش بدك تلغي هالزبون؟ (بموافقة صفوح)', [{ ph: 'سكّر، ما بيتعامل، مكرر…' }], 'ابعت الطلب', function (v) { push(r1, { delreq: '1', delreason: v[0] }); render(); }, true); return; }
+    if (a2 === 'nx') { ask('تحذف هالزبون الجديد؟', [], 'احذف', function () { push(r1, { kind: 'newx' }); render(); }, true); return; }
+    render(); var e3 = $('sv' + r1); if (e3) e3.textContent = navigator.onLine ? '✓ انحفظ' : '✓ انحفظ عالموبايل — بينبعت لما يرجع النت';
+  });
+  document.addEventListener('change', function (ev) {
+    var t = ev.target; if (!t.getAttribute || !t.getAttribute('data-r') || !D || VIEW) return;
+    var r = +t.getAttribute('data-r');
+    if (t.tagName === 'SELECT') push(r, { reason: t.value }); else if (t.tagName === 'TEXTAREA') push(r, { note: t.value }); else return;
+    var e = $('sv' + r); if (e) e.textContent = '✓ انحفظ';
+  });
+  document.addEventListener('input', function (ev) { var t = ev.target; if (t.id === 'q') { q = norm(t.value); render(); } else if (t.tagName === 'TEXTAREA') { t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; } });
+
+  // ── start
+  function boot(ses, ops) {
+    var pend = Q.slice();
+    D = ses; VIEW = !!ses.view; S = {};
+    (ses.visits || []).forEach(function (v) { S[v.r] = v; });
+    (ops || []).sort(function (a, b) { return (a.ats || 0) - (b.ats || 0); }).forEach(applyOp);
+    pend.forEach(applyOp);
+    store(); head(); render(); net(); sync();
+  }
+  if (qs.get('demo')) { API = ''; LS = 'jl_demo'; DEMO = true; var sh = [], nms = ['ماركت الأكرم / الصبورة', 'بقالية العباس / صبورة', 'الحسن / صبورة', 'مركز زيد / التضامن', 'سوبر الأمل / التضامن', 'بزورية أبو كمال', 'الفارس / تضامن', 'ابن الشام / تضامن'];
+    nms.forEach(function (n, i) { sh.push({ r: i + 4, g: String(51101 + i), n: n, p: i % 3 ? '0933' + (100000 + i * 731) : '', s: i % 2 ? 'توقف منذ ' + (20 + i * 5) + ' يوم (آخر بيع 12/09)' : 'يشتري - آخر بيع 27/09', t: i % 3 === 0 ? '🎯 هدف المحل: <b>45$</b> (متوسط 2 فاتورة 40$)' : '🎯 هدف تقديري: <b>35$</b>', a: i % 2 ? '🔴 وقف شراء — رجّعو بعرض أو كمية صغيرة.' : '✅ زبون ثابت — كبّر الفاتورة: اعرض لانشون.', pv: 0, ps: 0, sl: i === 2 ? '33.51,36.29' : '' }); });
+    D = { rep: 'محمد صيداوي', tab: 'الأحد ٢', area: 'تضامن', day: '2026-10-04', dateTxt: 'الأحد 04/10/2026', status: 'open', shops: sh, reasons: ['لا يوجد سيولة', 'لديه مخزون كافٍ', 'يشتري من منافس', 'المحل مغلق'], advice: '💡 نصيحة خط اليوم\n• 🎯 هدف اليوم: 526$ و45 زيارة.\n• 🔴 وقفوا شراء من 3 أسابيع: 15', visits: [{ r: 4, visited: '1', bought: '1', vt: '09:12', lat: '33.5', lng: '36.3' }, { r: 5, visited: '1', bought: '0', reason: 'لا يوجد سيولة', vt: '09:31' }, { r: 6, visited: '0' }] };
+    S = {}; D.visits.forEach(function (v) { S[v.r] = v; }); head(); render(); net(); showLoc(); return; }
+  if (!T || !K) { msg('⚠️ الرابط ناقص — افتح الخط من زر البوت.'); return; }
+  var cached = restore();
+  if (cached) { VIEW = !!D.view; head(); render(); net(); }
+  if (!initData()) { msg('⚠️ لازم تفتح الصفحة من زر البوت جوّا التلغرام.'); return; }
+  if (navigator.onLine) {
+    post({ act: 'load', t: T, k: K, initData: initData() }).then(function (j) {
+      if (j && j.ok) { j.ses.view = !!j.view; boot(j.ses, j.ops); msg(''); if (j.ses.status !== 'open') msg('🔒 انقفل خط اليوم وانسجّل بالملف.'); }
+      else if (!cached) msg(j && j.err === 'not_yours' ? '⛔ هالخط مو إلك.' : (j && j.err === 'bad_link' ? '⚠️ الرابط مو صالح أو انتهى.' : '⚠️ ما قدرت حمّل الخط (' + esc(j && j.err) + ') — جرّب كمان شوي.'));
+    }).catch(function () { if (!cached) msg('📴 ما في نت — افتح الخط مرة وحدة وانت متصل، وبعدها بيشتغل أوفلاين.'); });
+  } else if (!cached) msg('📴 ما في نت — افتح الخط مرة وحدة وانت متصل، وبعدها بيشتغل أوفلاين.');
+  showLoc(); initLoc(); setInterval(function () { if (D && D.status === 'open' && !VIEW) refreshLoc(); }, 120000);
+  if ('serviceWorker' in navigator) { try { navigator.serviceWorker.register('sw.js'); } catch (e) {} }
+})();
+</script>
+</body>
+</html>
