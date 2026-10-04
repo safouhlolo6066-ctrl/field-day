@@ -82,7 +82,7 @@ button:disabled,select:disabled,textarea:disabled{opacity:.45}
 <script>
 (function () {
   'use strict';
-  var API = '__API_URL__';
+  var API = 'https://script.google.com/macros/s/AKfycbzIq8kkedtqxzlBzPGG53Qr1crAMgeUK6pbTs3necPz_cWtW3swKI9r34RrOkff0gFeGA/exec';
   var qs = new URLSearchParams(location.search), T = (qs.get('t') || '').replace(/[^a-z0-9]/g, ''), K = (qs.get('k') || '').replace(/[^A-Za-z0-9]/g, '');
   var TG = window.Telegram && window.Telegram.WebApp;
   try { if (TG) { TG.ready(); TG.expand(); if (TG.colorScheme === 'dark') document.documentElement.style.colorScheme = 'dark'; } } catch (e) {}
@@ -134,7 +134,7 @@ button:disabled,select:disabled,textarea:disabled{opacity:.45}
   function st(r) { if (!S[r]) S[r] = { r: r }; return S[r]; }
   function shops() {
     var base = (D.shops || []).map(function (s) { return { r: +s.r, g: s.g, n: s.n, p: s.p, s: s.s, t: s.t, a: s.a, pv: s.pv, ps: s.ps, sl: s.sl }; });
-    Object.keys(S).forEach(function (k) { var x = S[k]; if (+k >= 1000 && x.kind === 'new') base.push({ r: +k, g: 'جديد', n: x.name + (x.area && String(x.name).indexOf(x.area) < 0 ? ' / ' + x.area : ''), p: x.phone || '', s: '🆕 زبون جديد — انضاف اليوم', isNew: 1 }); });
+    Object.keys(S).forEach(function (k) { var x = S[k]; if (+k >= 2000 && x.kind === 'new') base.push({ r: +k, g: 'جديد', n: x.name + (x.area && String(x.name).indexOf(x.area) < 0 ? ' / ' + x.area : ''), p: x.phone || '', s: '🆕 زبون جديد — انضاف اليوم', isNew: 1 }); });
     var pos = {}; (D.order || []).forEach(function (r, i) { pos[r] = i; });
     var b0 = {}; base.forEach(function (s, i) { b0[s.r] = i; });
     base.sort(function (a, b) { return (pos[a.r] != null ? pos[a.r] : 1e5 + b0[a.r]) - (pos[b.r] != null ? pos[b.r] : 1e5 + b0[b.r]); });
@@ -229,7 +229,7 @@ button:disabled,select:disabled,textarea:disabled{opacity:.45}
     if (t.id === 'advbtn') { var a = $('adv'); a.style.display = a.style.display === 'block' ? 'none' : 'block'; return; }
     if (!D || VIEW || D.status !== 'open') return;
     if (t.id === 'addbtn') { ask('➕ زبون جديد', [{ ph: 'اسم المحل' }, { ph: 'المنطقة', val: D.area || '' }, { ph: 'رقم الهاتف (إذا موجود)', type: 'tel' }], 'أضف', function (v) { if (!v[0]) return;
-      var r = 1000; Object.keys(S).forEach(function (k) { if (+k >= r) r = +k + 1; }); push(r, stampLoc(r, { kind: 'new', name: v[0], area: v[1], phone: v[2].replace(/[^\d+]/g, ''), visited: '1', vt: hm(Date.now()) })); filt = 'all'; render(); }); return; }
+      var r = 2000; Object.keys(S).forEach(function (k) { if (+k >= r) r = +k + 1; }); push(r, stampLoc(r, { kind: 'new', name: v[0], area: v[1], phone: v[2].replace(/[^\d+]/g, ''), visited: '1', vt: hm(Date.now()) })); filt = 'all'; render(); }); return; }
     if (t.id === 'sortbtn') { sorting = true; $('sortmsg').textContent = 'رتّب حسب مشيتك: ⤒ لأول الخط · ▲ لفوق · ▼ لتحت'; render(); return; }
     if (t.id === 'sortno') { sorting = false; D.order = D._order0 || D.order; render(); return; }
     if (t.id === 'sortok') { var rows = shops().map(function (s) { return s.r; }); Q.push({ id: rid(), ts: Date.now(), t: 'order', rows: rows }); D.order = rows; sorting = false; store(); sync(); render(); return; }
