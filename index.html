@@ -78,7 +78,7 @@ button:disabled,select:disabled,textarea:disabled{opacity:.45}
 <div id="stick"><div class="seg" role="group" aria-label="فلتر المحلات"><button class="f on" data-f="all">الكل</button><button class="f" data-f="left">الباقي</button><button class="f" data-f="vis">انزار</button><button class="f" data-f="nv">ما انزار</button></div>
 <div class="sr"><input id="q" type="search" inputmode="search" autocomplete="off" placeholder="بحث — اسم، رقم عام، أو هاتف"></div></div>
 <div id="list"></div>
-<nav id="tools"><button id="advbtn" style="display:none">💡 النصيحة</button><button id="sortbtn">↕️ رتّب</button><button id="addbtn">＋ زبون جديد</button></nav>
+<nav id="tools"><button id="advbtn" style="display:none">💡 النصيحة</button><button id="sortbtn">↕️ رتّب</button><button id="offbtn">🚶 اضطرارية</button><button id="addbtn">＋ زبون جديد</button></nav>
 <script>
 (function () {
   'use strict';
@@ -133,7 +133,7 @@ button:disabled,select:disabled,textarea:disabled{opacity:.45}
   // ── state
   function applyOp(o) {
     if (o.t === 'order') { if (o.rows && o.rows.length) D.order = o.rows; return; }
-    var x = st(o.r); ['visited', 'bought', 'reason', 'note', 'phone', 'lat', 'lng', 'acc', 'kind', 'name', 'area', 'delreq', 'delreason'].forEach(function (k) { if (o[k] != null) x[k] = o[k]; });
+    var x = st(o.r); ['visited', 'bought', 'reason', 'note', 'phone', 'lat', 'lng', 'acc', 'kind', 'name', 'area', 'delreq', 'delreason', 'gid'].forEach(function (k) { if (o[k] != null) x[k] = o[k]; });
     if (o.vt) x.vt = o.vt; else if (o.ats && o.visited === '1' && !x.vt) x.vt = hm(o.ats);
     if (o.off) x.off = 1;
   }
@@ -141,10 +141,11 @@ button:disabled,select:disabled,textarea:disabled{opacity:.45}
   function shops() {
     var base = (D.shops || []).map(function (s) { return { r: +s.r, g: s.g, n: s.n, p: s.p, s: s.s, t: s.t, a: s.a, pv: s.pv, ps: s.ps, sl: s.sl }; });
     Object.keys(S).forEach(function (k) { var x = S[k]; if (+k >= 2000 && x.kind === 'new') base.push({ r: +k, g: 'جديد', n: x.name + (x.area && String(x.name).indexOf(x.area) < 0 ? ' / ' + x.area : ''), p: x.phone || '', s: '🆕 زبون جديد — انضاف اليوم', isNew: 1 }); });
+    Object.keys(S).forEach(function (k) { var x = S[k]; if (+k >= 5000 && x.kind === 'ex' && x.name) base.push({ r: +k, g: x.gid || 'اضطراري', n: x.name, p: x.phone || '', s: '🚶 زيارة اضطرارية — من خط ' + (x.area || ''), isOff: 1 }); });
     var pos = {}; (D.order || []).forEach(function (r, i) { pos[r] = i; });
     var b0 = {}; base.forEach(function (s, i) { b0[s.r] = i; });
     base.sort(function (a, b) { return (pos[a.r] != null ? pos[a.r] : 1e5 + b0[a.r]) - (pos[b.r] != null ? pos[b.r] : 1e5 + b0[b.r]); });
-    return base.filter(function (s) { var x = S[s.r] || {}; return x.kind !== 'newx' && x.delok !== 'ok'; });
+    return base.filter(function (s) { var x = S[s.r] || {}; return x.kind !== 'newx' && x.kind !== 'mv' && x.delok !== 'ok'; });
   }
   function vis(s) { var x = S[s.r] || {}; return x.visited === '1' || (!x.visited && s.pv); }
   function buy(s) { var x = S[s.r] || {}; return vis(s) && (x.bought === '1' || (!x.bought && s.ps)); }
@@ -207,14 +208,34 @@ button:disabled,select:disabled,textarea:disabled{opacity:.45}
     h += '<div class="ft"><span class="sv" id="sv' + s.r + '"></span><span>'
       + (x.lat ? '' : '<button class="lk gl" data-a="gl" data-r="' + s.r + '">📍 سجّل موقع المحل</button> · ')
       + '<button class="lk ph" data-a="ph" data-r="' + s.r + '">☎ ' + (x.phone ? 'عدّل الرقم' : 'أضف رقم') + '</button>'
-      + (s.isNew ? ' · <button class="lk" data-a="nx" data-r="' + s.r + '">🗑️ احذف</button>' : (x.delreq === '1' ? '' : ' · <button class="lk" data-a="dq" data-r="' + s.r + '">🗑️ طلب إلغاء</button>')) + '</span></div></div>';
+      + (s.isOff || s.isNew ? '' : ' · <button class="lk" data-a="wm" data-r="' + s.r + '">📅 انقل ليوم تاني</button>') + (s.isOff ? '' : s.isNew ? ' · <button class="lk" data-a="nx" data-r="' + s.r + '">🗑️ احذف</button>' : (x.delreq === '1' ? '' : ' · <button class="lk" data-a="dq" data-r="' + s.r + '">🗑️ طلب إلغاء</button>')) + '</span></div></div>';
     return h;
   }
   function visible(s) { var x = S[s.r] || {}; if (sorting) return true; if (q && norm(s.n + ' ' + s.g + ' ' + s.p + ' ' + (x.phone || '')).indexOf(q) < 0) return false;
     if (filt === 'left') return !vis(s) && x.visited !== '0'; if (filt === 'vis') return vis(s); if (filt === 'nv') return x.visited === '0'; return true; }
+  function shopName(r) { var s = (D.shops || []).filter(function (z) { return +z.r === r; })[0]; return s ? String(s.n).split(/\s*[\/\\*]\s*/)[0] : 'محل ' + r; }
+  function movedBar() { var h = ''; Object.keys(S).forEach(function (k) { var x = S[k]; if (x.kind === 'mv' && !sorting) h += '<div class="dq" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>📅 ' + esc(shopName(+k)) + ' ← ' + esc(x.area) + '</span><button class="lk ph" data-a="wu" data-r="' + k + '">↩️ تراجع</button></div>'; }); return h ? '<div style="margin-bottom:12px">' + h + '</div>' : ''; }
+  var PKS = 'display:block;width:100%;text-align:right;border:0;border-radius:12px;padding:12px;margin-top:8px;font:inherit;font-size:.95rem;background:var(--fill);color:var(--ink)';
+  function pick(title, items, cb) { var bg = document.createElement('div'); bg.id = 'sheetbg';
+    bg.innerHTML = '<div id="sheet" role="dialog" aria-modal="true"><h3>' + esc(title) + '</h3><div style="max-height:55vh;overflow:auto">' + items.map(function (it, i) { return '<button class="pk" data-i="' + i + '" style="' + PKS + '">' + esc(it.label) + '</button>'; }).join('') + '</div><div class="acts"><button class="no">إلغاء</button></div></div>';
+    document.body.appendChild(bg);
+    bg.addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('.pk'); if (b) { var it = items[+b.getAttribute('data-i')]; bg.remove(); cb(it.val); return; } if (e.target === bg || e.target.classList.contains('no')) bg.remove(); }); }
+  function offSearch() { var oth = D.oth || [], tabs = D.tabs || [];
+    if (!oth.length) { msg('ما في محلات من أيام تانية بهالجلسة — بتظهر من الجلسة الجاية.'); return; }
+    var bg = document.createElement('div'); bg.id = 'sheetbg';
+    bg.innerHTML = '<div id="sheet" role="dialog" aria-modal="true"><h3>🚶 زيارة اضطرارية — دوّر على المحل</h3><input id="oq" placeholder="اسم، رقم عام، أو هاتف" autocomplete="off"><div id="ores" style="max-height:45vh;overflow:auto"></div><div class="acts"><button class="no">إغلاق</button></div></div>';
+    document.body.appendChild(bg);
+    function show() { var raw = document.getElementById('oq').value, qq = norm(raw), dq = raw.replace(/\D/g, ''), out = [];
+      if (qq.length >= 2 || dq.length >= 3) oth.forEach(function (o, i) { if (out.length >= 30) return; if ((qq && norm(o[2]).indexOf(qq) >= 0) || (dq.length >= 3 && (String(o[1]).replace(/\D/g, '') === dq || String(o[3] || '').replace(/\D/g, '').indexOf(dq) >= 0))) out.push(i); });
+      document.getElementById('ores').innerHTML = out.map(function (i) { var o = oth[i]; return '<button class="pk" data-i="' + i + '" style="' + PKS + '">' + esc(o[2]) + '<br><small style="color:var(--sub)">' + esc(tabs[o[0]] || '') + ' · رقم ' + esc(o[1] || '—') + '</small></button>'; }).join('') || '<p class="emp" style="padding:16px 0">اكتب حرفين من الاسم أو 3 أرقام</p>'; }
+    bg.addEventListener('input', show);
+    bg.addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('.pk');
+      if (b) { var i = +b.getAttribute('data-i'), o = oth[i]; bg.remove(); filt = 'all'; push(5000 + i, { kind: 'ex', gid: String(o[1] || ''), name: String(o[2]).slice(0, 90), area: String(tabs[o[0]] || ''), phone: String(o[3] || '').replace(/[^\d+\/ ]/g, ''), visited: '1', vt: hm(Date.now()) }); render(); return; }
+      if (e.target === bg || e.target.classList.contains('no')) bg.remove(); });
+    show(); setTimeout(function () { document.getElementById('oq').focus(); }, 60); }
   function render() {
     var L = shops(), k = 0;
-    $('list').innerHTML = L.map(function (s) { var c = visible(s) ? card(s, k) : ''; k++; return c; }).join('') || '<p class="emp">' + (q ? 'ما لقيت محل 🔍' : 'ما في محلات بهالفلتر 👌') + '</p>';
+    $('list').innerHTML = movedBar() + L.map(function (s) { var c = visible(s) ? card(s, k) : ''; k++; return c; }).join('') || '<p class="emp">' + (q ? 'ما لقيت محل 🔍' : 'ما في محلات بهالفلتر 👌') + '</p>';
     $('sortbar').style.display = sorting ? 'flex' : 'none'; $('tools').style.display = sorting || VIEW ? 'none' : 'flex'; document.body.style.paddingBottom = sorting || VIEW ? '24px' : '';
     summary(L);
     var lock = VIEW || D.status !== 'open';
@@ -234,6 +255,7 @@ button:disabled,select:disabled,textarea:disabled{opacity:.45}
     if (t.id === 'locbtn') { try { if (TG && TG.LocationManager && TG.LocationManager.isInited && !TG.LocationManager.isAccessGranted) TG.LocationManager.openSettings(); else refreshLoc(); } catch (e) { gps(); } return; }
     if (t.id === 'advbtn') { var a = $('adv'); a.style.display = a.style.display === 'block' ? 'none' : 'block'; return; }
     if (!D || VIEW || D.status !== 'open') return;
+    if (t.id === 'offbtn') { offSearch(); return; }
     if (t.id === 'addbtn') { ask('➕ زبون جديد', [{ ph: 'اسم المحل' }, { ph: 'المنطقة', val: D.area || '' }, { ph: 'رقم الهاتف (إذا موجود)', type: 'tel' }], 'أضف', function (v) { if (!v[0]) return;
       var r = 2000; Object.keys(S).forEach(function (k) { if (+k >= r) r = +k + 1; }); push(r, stampLoc(r, { kind: 'new', name: v[0], area: v[1], phone: v[2].replace(/[^\d+]/g, ''), visited: '1', vt: hm(Date.now()) })); filt = 'all'; render(); }); return; }
     if (t.id === 'sortbtn') { sorting = true; $('sortmsg').textContent = 'رتّب حسب مشيتك: ⤒ لأول الخط · ▲ لفوق · ▼ لتحت'; render(); return; }
@@ -249,6 +271,8 @@ button:disabled,select:disabled,textarea:disabled{opacity:.45}
     if (a2 === 'b1') push(r1, { bought: x.bought === '1' ? '' : '1', reason: '' });
     if (a2 === 'b0') push(r1, { bought: x.bought === '0' ? '' : '0' });
     if (a2 === 'gl') { var e0 = $('sv' + r1); if (e0) e0.textContent = '⏳ عم ياخد الموقع…'; refreshLoc(function () { if (fresh()) { push(r1, stampLoc(r1, {})); render(); var e1 = $('sv' + r1); if (e1) e1.textContent = '✓ انحفظ موقع المحل'; } else { var e2 = $('sv' + r1); if (e2) e2.textContent = '⚠️ ما قدرت آخد الموقع — فعّل الموقع'; } }); return; }
+    if (a2 === 'wm') { var tbs = (D.tabs || []).filter(function (tt) { return tt !== D.tab; }); if (!tbs.length) { msg('ما في أيام تانية بهالجلسة — بتظهر من الجلسة الجاية.'); return; } pick('📅 انقل الزبون لأي يوم؟', tbs.map(function (tt) { return { label: tt, val: tt }; }), function (tt) { push(r1, { kind: 'mv', area: tt }); render(); }); return; }
+    if (a2 === 'wu') { push(r1, { kind: '', area: '' }); render(); return; }
     if (a2 === 'ph') { ask('☎ رقم الهاتف', [{ ph: '09xxxxxxxx', val: x.phone || '', type: 'tel' }], 'احفظ', function (v) { var np = v[0].replace(/[^\d+]/g, ''); if (np && np.length < 6) return; push(r1, { phone: np }); render(); }); return; }
     if (a2 === 'dq') { ask('🗑️ ليش بدك تلغي هالزبون؟ (بموافقة صفوح)', [{ ph: 'سكّر، ما بيتعامل، مكرر…' }], 'ابعت الطلب', function (v) { push(r1, { delreq: '1', delreason: v[0] }); render(); }, true); return; }
     if (a2 === 'nx') { ask('تحذف هالزبون الجديد؟', [], 'احذف', function () { push(r1, { kind: 'newx' }); render(); }, true); return; }
@@ -273,7 +297,7 @@ button:disabled,select:disabled,textarea:disabled{opacity:.45}
   }
   if (qs.get('demo')) { API = ''; LS = 'jl_demo'; DEMO = true; var sh = [], nms = ['ماركت الأكرم / الصبورة', 'بقالية العباس / صبورة', 'الحسن / صبورة', 'مركز زيد / التضامن', 'سوبر الأمل / التضامن', 'بزورية أبو كمال', 'الفارس / تضامن', 'ابن الشام / تضامن'];
     nms.forEach(function (n, i) { sh.push({ r: i + 4, g: String(51101 + i), n: n, p: i % 3 ? '0933' + (100000 + i * 731) : '', s: i % 2 ? 'توقف منذ ' + (20 + i * 5) + ' يوم (آخر بيع 12/09)' : 'يشتري - آخر بيع 27/09', t: i % 3 === 0 ? '🎯 هدف المحل: <b>45$</b> (متوسط 2 فاتورة 40$)' : '🎯 هدف تقديري: <b>35$</b>', a: i % 2 ? '🔴 وقف شراء — رجّعو بعرض أو كمية صغيرة.' : '✅ زبون ثابت — كبّر الفاتورة: اعرض لانشون.', pv: 0, ps: 0, sl: i === 2 ? '33.51,36.29' : '' }); });
-    D = { rep: 'محمد صيداوي', tab: 'الأحد ٢', area: 'تضامن', day: '2026-10-04', dateTxt: 'الأحد 04/10/2026', status: 'open', shops: sh, reasons: ['لا يوجد سيولة', 'لديه مخزون كافٍ', 'يشتري من منافس', 'المحل مغلق'], advice: '💡 نصيحة خط اليوم\n• 🎯 هدف اليوم: 526$ و45 زيارة.\n• 🔴 وقفوا شراء من 3 أسابيع: 15', visits: [{ r: 4, visited: '1', bought: '1', vt: '09:12', lat: '33.5', lng: '36.3' }, { r: 5, visited: '1', bought: '0', reason: 'لا يوجد سيولة', vt: '09:31' }, { r: 6, visited: '0' }] };
+    D = { tabs: ['الأحد ٢', 'الاثنين ١', 'الثلاثاء ١'], oth: [[1, '61001', 'سوبر الورد / المزة', '0933111222'], [2, '61002', 'بقالية النور / كفرسوسة', '']], rep: 'محمد صيداوي', tab: 'الأحد ٢', area: 'تضامن', day: '2026-10-04', dateTxt: 'الأحد 04/10/2026', status: 'open', shops: sh, reasons: ['لا يوجد سيولة', 'لديه مخزون كافٍ', 'يشتري من منافس', 'المحل مغلق'], advice: '💡 نصيحة خط اليوم\n• 🎯 هدف اليوم: 526$ و45 زيارة.\n• 🔴 وقفوا شراء من 3 أسابيع: 15', visits: [{ r: 4, visited: '1', bought: '1', vt: '09:12', lat: '33.5', lng: '36.3' }, { r: 5, visited: '1', bought: '0', reason: 'لا يوجد سيولة', vt: '09:31' }, { r: 6, visited: '0' }] };
     S = {}; D.visits.forEach(function (v) { S[v.r] = v; }); head(); render(); net(); showLoc(); return; }
   if (!T || !K) { msg('⚠️ الرابط ناقص — افتح الخط من زر البوت.'); return; }
   var cached = restore();
