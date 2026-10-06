@@ -285,7 +285,7 @@ button:disabled,select:disabled,textarea:disabled{opacity:.45}
       else if (!cached) msg(j && j.err === 'not_yours' ? '⛔ هالخط مو إلك.' : (j && j.err === 'bad_link' ? '⚠️ الرابط مو صالح أو انتهى.' : '⚠️ ما قدرت حمّل الخط (' + esc(j && j.err) + ') — جرّب كمان شوي.'));
     }).catch(function () { if (!cached) msg('📴 ما في نت — افتح الخط مرة وحدة وانت متصل، وبعدها بيشتغل أوفلاين.'); });
   } else if (!cached) msg('📴 ما في نت — افتح الخط مرة وحدة وانت متصل، وبعدها بيشتغل أوفلاين.');
-  showLoc(); initLoc(); setInterval(function () { if (D && D.status === 'open' && !VIEW) refreshLoc(); }, 120000);
+  locState = 'بعد أول زيارة'; showLoc();   // 06/10: ما نطلب الموقع عند الفتح (بيطلّع التلغرام عند بعض الجوالات) — بس عند «انزار» / «سجّل الموقع»
   if ('serviceWorker' in navigator) { try { navigator.serviceWorker.register('sw.js'); } catch (e) {} }
 })();
 </script>
