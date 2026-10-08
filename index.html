@@ -154,11 +154,11 @@ button:disabled,select:disabled,textarea:disabled{opacity:.45}
   function setLoc(la, ln, ac) { LOC = { lat: (+la).toFixed(6), lng: (+ln).toFixed(6), acc: ac ? Math.round(ac) : '', at: Date.now() }; locState = '✓'; showLoc(); }
   function showLoc() { $('loc').innerHTML = '📍 الموقع: ' + (locState === '✓' ? 'شغّال ✓' : esc(locState) + ' <button id="locbtn">فعّل</button>'); }
   function gps(cb) { if (!navigator.geolocation) { locState = 'مو مدعوم'; showLoc(); if (cb) cb(); return; }
-    navigator.geolocation.getCurrentPosition(function (p) { setLoc(p.coords.latitude, p.coords.longitude, p.coords.accuracy); if (cb) cb(); }, function () { locState = 'مو مسموح'; showLoc(); if (cb) cb(); }, { enableHighAccuracy: true, maximumAge: 60000, timeout: 15000 }); }
+    navigator.geolocation.getCurrentPosition(function (p) { setLoc(p.coords.latitude, p.coords.longitude, p.coords.accuracy); if (cb) cb(); }, function () { locState = 'مو مسموح'; showLoc(); if (cb) cb(); }, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }); }
   function tgLoc(cb) { try { TG.LocationManager.getLocation(function (d) { if (d && d.latitude) setLoc(d.latitude, d.longitude, d.horizontal_accuracy); else { locState = 'مو مسموح'; showLoc(); } if (cb) cb(); }); } catch (e) { gps(cb); } }
   function refreshLoc(cb) { if (TG && TG.LocationManager && TG.LocationManager.isInited && TG.LocationManager.isLocationAvailable) tgLoc(cb); else gps(cb); }
   function initLoc() { try { if (TG && TG.LocationManager && TG.isVersionAtLeast && TG.isVersionAtLeast('8.0')) { TG.LocationManager.init(function () { if (TG.LocationManager.isLocationAvailable) tgLoc(); else gps(); }); return; } } catch (e) {} gps(); }
-  function fresh() { return LOC && Date.now() - LOC.at < 180000; }
+  function fresh() { return LOC && Date.now() - LOC.at < 20000; }
 
   // ── ops
   function ask(title, fields, okLabel, cb, red) {
@@ -266,7 +266,7 @@ button:disabled,select:disabled,textarea:disabled{opacity:.45}
     if (m) { if (!D._order0) D._order0 = (D.order || []).slice(); var L = shops().map(function (s) { return s.r; }), r0 = +m.getAttribute('data-r'), i = L.indexOf(r0); L.splice(i, 1); var j = m.getAttribute('data-m') === 'top' ? 0 : (m.getAttribute('data-m') === 'up' ? Math.max(0, i - 1) : Math.min(L.length, i + 1)); L.splice(j, 0, r0); D.order = L; render(); var el = document.querySelectorAll('.c.srt')[j]; if (el) el.scrollIntoView({ block: 'center' }); return; }
     var b = t.closest && t.closest('button[data-a]'); if (!b) return;
     var r1 = +b.getAttribute('data-r'), x = st(r1), a2 = b.getAttribute('data-a');
-    if (a2 === 'v1') { if (x.visited === '1') return; push(r1, stampLoc(r1, { visited: '1', vt: hm(Date.now()) })); if (!fresh()) refreshLoc(function () { if (fresh() && !st(r1).lat) { push(r1, stampLoc(r1, {})); render(); } }); }
+    if (a2 === 'v1') { if (x.visited === '1') return; push(r1, stampLoc(r1, { visited: '1', vt: hm(Date.now()) })); if (!fresh()) refreshLoc(function () { if (fresh() && !st(r1).lat) { push(r1, stampLoc(r1, {})); } else if (!st(r1).lat) { var nn = st(r1).note || ''; if (nn.indexOf('🚫 رفض الموقع') < 0) push(r1, { note: (nn ? nn + ' · ' : '') + '🚫 رفض الموقع' }); msg('📍 الموقع مقفل — فعّله من إعدادات تلغرام أو الموبايل (زر «فعّل» فوق) مشان ينسجّل مكان كل زيارة.'); setTimeout(function () { msg(''); }, 9000); } render(); }); }
     if (a2 === 'v0') push(r1, { visited: x.visited === '0' ? '' : '0', bought: '', reason: '' });
     if (a2 === 'b1') push(r1, { bought: x.bought === '1' ? '' : '1', reason: '' });
     if (a2 === 'b0') push(r1, { bought: x.bought === '0' ? '' : '0' });
