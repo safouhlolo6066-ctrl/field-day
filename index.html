@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <title>🧭 خط اليوم — جينا</title>
 <link rel="manifest" href="manifest.json">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>(function(){var s=document.createElement("script");s.src="https://telegram.org/js/telegram-web-app.js";s.async=true;window.__tgReady=new Promise(function(r){s.onload=r;s.onerror=r;setTimeout(r,2500);});document.head.appendChild(s);})();</script>
 <style>
 :root{--bg:#f2f2f7;--card:#ffffff;--ink:#1c1c1e;--sub:#6e6e73;--line:rgba(60,60,67,.12);--fill:rgba(118,118,128,.12);
 --blue:#007aff;--green:#34c759;--orange:#ff9500;--red:#ff3b30;--teal:#0a84ff;--chrome:rgba(249,249,251,.78);--sh:0 1px 2px rgba(0,0,0,.04),0 6px 20px rgba(0,0,0,.05)}
@@ -80,7 +80,7 @@ button:disabled,select:disabled,textarea:disabled{opacity:.45}
 <div id="list"></div>
 <nav id="tools"><button id="advbtn" style="display:none">💡 النصيحة</button><button id="sortbtn">↕️ رتّب</button><button id="offbtn">🚶 اضطرارية</button><button id="addbtn">＋ زبون جديد</button></nav>
 <script>
-(function () {
+window.__tgReady.then(function () {
   'use strict';
   var API = 'https://script.google.com/macros/s/AKfycbzIq8kkedtqxzlBzPGG53Qr1crAMgeUK6pbTs3necPz_cWtW3swKI9r34RrOkff0gFeGA/exec';
   var qs = new URLSearchParams(location.search), T = (qs.get('t') || '').replace(/[^a-z0-9]/g, ''), K = (qs.get('k') || '').replace(/[^A-Za-z0-9]/g, '');
@@ -93,7 +93,7 @@ button:disabled,select:disabled,textarea:disabled{opacity:.45}
   function norm(x) { return String(x || '').replace(/[إأآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').replace(/[\s\/\\*\-]+/g, ' ').toLowerCase().trim(); }
   function store() { try { localStorage.setItem(LS, JSON.stringify({ D: D, S: S, Q: Q, init: initData(), at: Date.now() })); } catch (e) {} }
   function restore() { try { var o = JSON.parse(localStorage.getItem(LS) || 'null'); if (o && o.D) { D = o.D; S = o.S || {}; Q = o.Q || []; return o; } } catch (e) {} return null; }
-  function initData() { var d = TG && TG.initData; if (d) return d; try { var o = JSON.parse(localStorage.getItem(LS) || 'null'); return (o && o.init) || ''; } catch (e) { return ''; } }
+  function initData() { var d = TG && TG.initData; if (d) return d; try { var hh = new URLSearchParams(location.hash.slice(1)).get('tgWebAppData'); if (hh) return hh; } catch (e) {} try { var o = JSON.parse(localStorage.getItem(LS) || 'null'); return (o && o.init) || ''; } catch (e) { return ''; } }
   function msg(t) { var m = $('msg'); m.innerHTML = t; m.style.display = t ? 'block' : 'none'; }
   function hm(ms) { return new Date(ms).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }); }
   function rid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
@@ -311,7 +311,7 @@ button:disabled,select:disabled,textarea:disabled{opacity:.45}
   } else if (!cached) msg('📴 ما في نت — افتح الخط مرة وحدة وانت متصل، وبعدها بيشتغل أوفلاين.');
   locState = 'بعد أول زيارة'; showLoc();   // 06/10: ما نطلب الموقع عند الفتح (بيطلّع التلغرام عند بعض الجوالات) — بس عند «انزار» / «سجّل الموقع»
   if ('serviceWorker' in navigator) { try { navigator.serviceWorker.register('sw.js'); } catch (e) {} }
-})();
+});
 </script>
 </body>
 </html>
