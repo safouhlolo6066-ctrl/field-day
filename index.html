@@ -124,7 +124,7 @@ window.__tgReady.then(function () {
   }
   window.addEventListener('online', function () { net(); sync(); });
   window.addEventListener('offline', net);
-  setInterval(sync, 25000 + Math.floor(Math.random() * 10000));   // 60 مندوب ما بيضربو بنفس الثانية
+  setInterval(function () { if (D && D.status === 'open' && tooLate()) { D.status = 'closed'; render(); } }, 20000); setInterval(sync, 25000 + Math.floor(Math.random() * 10000));   // 60 مندوب ما بيضربو بنفس الثانية
   setInterval(function () {   // قبل تجميع 9 المسا: نبّه إذا في كبسات ما وصلت
     var h = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Damascus', hour: '2-digit', minute: '2-digit', hour12: false });
     if (D && D.status === 'open' && Q.length && h >= '20:30' && h < '21:00' && String(D.day) < '2090') msg('⚠️ في ' + Q.length + ' كبسة لسا ما وصلت — اتصل بالنت قبل الساعة 9 لتنحسب.');
@@ -170,8 +170,9 @@ window.__tgReady.then(function () {
     var first = document.getElementById('ask0'); if (first) setTimeout(function () { first.focus(); }, 60);
   }
   function hap(k) { try { if (TG && TG.HapticFeedback) { if (k === 'ok') TG.HapticFeedback.notificationOccurred('success'); else TG.HapticFeedback.impactOccurred('light'); } } catch (e) {} }
-  function push(r, fields) {
-    if (VIEW || D.status !== 'open') return;
+  function tooLate() { try { var d = String((D && D.day) || '').slice(0, 10); if (!d || d > '2090') return false; var p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Damascus', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date()); var o = {}; p.forEach(function (x) { o[x.type] = x.value; }); var today = o.year + '-' + o.month + '-' + o.day; return d < today || (d === today && (o.hour + ':' + o.minute) >= '21:00'); } catch (e) { return false; } }
+function push(r, fields) {
+    if (VIEW || D.status !== 'open') return; if (tooLate()) { D.status = 'closed'; msg('🔒 انقفل الخط — ما عاد فيك تعدّل.'); render(); return; }
     var x = st(r); var o = { id: rid(), ts: Date.now(), t: 'v', r: r };
     for (var k in fields) { o[k] = fields[k]; x[k] = fields[k]; }
     if (!navigator.onLine) { o.off = 1; x.off = 1; }
@@ -234,7 +235,7 @@ window.__tgReady.then(function () {
       if (e.target === bg || e.target.classList.contains('no')) bg.remove(); });
     show(); setTimeout(function () { document.getElementById('oq').focus(); }, 60); }
   function render() {
-    var L = shops(), k = 0;
+    if (D && D.status === 'open' && tooLate()) { D.status = 'closed'; } var L = shops(), k = 0;
     $('list').innerHTML = movedBar() + L.map(function (s) { var c = visible(s) ? card(s, k) : ''; k++; return c; }).join('') || '<p class="emp">' + (q ? 'ما لقيت محل 🔍' : 'ما في محلات بهالفلتر 👌') + '</p>';
     $('sortbar').style.display = sorting ? 'flex' : 'none'; $('tools').style.display = sorting || VIEW ? 'none' : 'flex'; document.body.style.paddingBottom = sorting || VIEW ? '24px' : '';
     summary(L);
