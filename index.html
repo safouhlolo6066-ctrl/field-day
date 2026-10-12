@@ -72,6 +72,7 @@ button:disabled,select:disabled,textarea:disabled{opacity:.45}
   <div class="st2"><span id="loc"></span><span id="net">…</span></div>
 </header>
 <div id="msg"></div>
+<div id="late"></div>
 <div id="view">👁 نسختك للمشاهدة بس — المندوب هو يلي بيسجّل.</div>
 <div id="adv"></div>
 <div id="sortbar"><button id="sortok">✅ احفظ الترتيب</button><button id="sortno">إلغاء</button><span id="sortmsg"></span></div>
@@ -115,7 +116,7 @@ window.__tgReady.then(function () {
     if (syncing || !Q.length || !navigator.onLine || VIEW) { net(); return; }
     syncing = true; net();
     var batch = Q.slice(0, 200);
-    post({ act: 'save', t: T, k: K, initData: initData(), deviceNow: Date.now(), ops: batch }).then(function (j) {
+    post({ act: 'save', t: T, k: K, initData: initData(), deviceNow: Date.now(), late: lateOn() ? 1 : 0, ops: batch }).then(function (j) {
       syncing = false;
       if (j && j.ok) { var done = {}; (j.saved || []).forEach(function (id) { done[id] = 1; }); Q = Q.filter(function (o) { return !done[o.id]; }); store(); net(); if (Q.length) setTimeout(sync, 500); }
       else if (j && j.err === 'closed') { msg('🔒 انقفل خط اليوم وانسجّل بالملف — ما عاد فيك تعدّل.' + (Q.length ? '<br>⚠️ ' + Q.length + ' كبسة ما وصلت قبل الإغلاق — خبّر مشرفك.' : '')); D.status = 'closed'; render(); }
@@ -170,7 +171,7 @@ window.__tgReady.then(function () {
     var first = document.getElementById('ask0'); if (first) setTimeout(function () { first.focus(); }, 60);
   }
   function hap(k) { try { if (TG && TG.HapticFeedback) { if (k === 'ok') TG.HapticFeedback.notificationOccurred('success'); else TG.HapticFeedback.impactOccurred('light'); } } catch (e) {} }
-  function tooLate() { try { var d = String((D && D.day) || '').slice(0, 10); if (!d || d > '2090') return false; var p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Damascus', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date()); var o = {}; p.forEach(function (x) { o[x.type] = x.value; }); var today = o.year + '-' + o.month + '-' + o.day; return d < today || (d === today && (o.hour + ':' + o.minute) >= '21:00'); } catch (e) { return false; } }
+  function tooLate() { if (lateOn()) return false; try { var d = String((D && D.day) || '').slice(0, 10); if (!d || d > '2090') return false; var p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Damascus', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date()); var o = {}; p.forEach(function (x) { o[x.type] = x.value; }); var today = o.year + '-' + o.month + '-' + o.day; return d < today || (d === today && (o.hour + ':' + o.minute) >= '21:00'); } catch (e) { return false; } }
 function push(r, fields) {
     if (VIEW || D.status !== 'open') return; if (tooLate()) { D.status = 'closed'; msg('🔒 انقفل الخط — ما عاد فيك تعدّل.'); render(); return; }
     var x = st(r); var o = { id: rid(), ts: Date.now(), t: 'v', r: r };
@@ -234,7 +235,7 @@ function push(r, fields) {
       if (b) { var i = +b.getAttribute('data-i'), o = oth[i]; bg.remove(); filt = 'all'; push(5000 + i, { kind: 'ex', gid: String(o[1] || ''), name: String(o[2]).slice(0, 90), area: String(tabs[o[0]] || ''), phone: String(o[3] || '').replace(/[^\d+\/ ]/g, ''), visited: '1', vt: hm(Date.now()) }); render(); return; }
       if (e.target === bg || e.target.classList.contains('no')) bg.remove(); });
     show(); setTimeout(function () { document.getElementById('oq').focus(); }, 60); }
-  function render() {
+  function render() { try { setTimeout(lateUI, 0); } catch (e) {}
     if (D && D.status === 'open' && tooLate()) { D.status = 'closed'; } var L = shops(), k = 0;
     $('list').innerHTML = movedBar() + L.map(function (s) { var c = visible(s) ? card(s, k) : ''; k++; return c; }).join('') || '<p class="emp">' + (q ? 'ما لقيت محل 🔍' : 'ما في محلات بهالفلتر 👌') + '</p>';
     $('sortbar').style.display = sorting ? 'flex' : 'none'; $('tools').style.display = sorting || VIEW ? 'none' : 'flex'; document.body.style.paddingBottom = sorting || VIEW ? '24px' : '';
@@ -287,6 +288,44 @@ function push(r, fields) {
   });
   document.addEventListener('input', function (ev) { var t = ev.target; if (t.id === 'q') { q = norm(t.value); render(); } else if (t.tagName === 'TEXTAREA') { t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; } });
 
+  // ── ترحيل متأخر بموافقة صفوح (12/10): طلب ← موافقة ← كود 6 خانات (30 دقيقة، مرة وحدة) ← فتح الحفظ 30 دقيقة
+  function lateOn() { return !!(D && D.lateUntil && Date.now() < D.lateUntil); }
+  function lateApply(l) {
+    if (!D) return;
+    if (l) { D.lateSt = l.st; if (l.st === 'active' && !VIEW) { D.lateUntil = l.until; D.status = 'open'; store(); head(); render(); sync(); } else store(); }
+    lateUI();
+  }
+  function lateUI() {
+    var e = $('late'); if (!e) return;
+    if (!D || VIEW || D.status === 'open' || String(D.day) > '2090') { e.style.display = 'none'; e.innerHTML = ''; return; }
+    var keep = $('lcode') ? $('lcode').value : '', st = D.lateSt || 'none';
+    var tx = st === 'pending' ? 'انبعت طلبك لصفوح — ناطر الموافقة. لما يوافق بيوصلك كود على التلغرام.' : st === 'rejected' ? '⛔ صفوح ما وافق على الطلب.' : st === 'approved' ? 'وافق صفوح ✅ — اكتب الكود يلي وصلك على التلغرام.' : 'إذا عندك كبسات لازم تنرحّل بعد الساعة 9، اطلب موافقة صفوح.';
+    var bs = 'border:0;border-radius:12px;padding:11px 14px;font:inherit;font-weight:700;font-size:.9rem;background:var(--blue);color:#fff';
+    e.innerHTML = '<div style="margin:12px 16px 0;background:var(--card);border-radius:16px;padding:14px;box-shadow:var(--sh);font-size:.9rem;line-height:1.7">🔓 <b>ترحيل بعد الساعة 9</b><br>' + tx
+      + '<div style="margin-top:10px"><button id="lreq" style="' + bs + '">🔓 اطلب ترحيل من صفوح</button></div>'
+      + '<div style="display:flex;gap:8px;margin-top:10px"><input id="lcode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="كود الترحيل (6 خانات)" aria-label="كود الترحيل" style="flex:1;min-width:0;padding:11px;border:0;border-radius:12px;background:var(--fill);color:var(--ink);font:inherit"><button id="lgo" style="' + bs + '">فتح</button></div>'
+      + '<div id="lmsg" style="margin-top:8px;color:var(--sub);font-size:.8rem" role="status"></div></div>';
+    e.style.display = 'block'; if (keep && $('lcode')) $('lcode').value = keep;
+  }
+  document.addEventListener('click', function (ev) {
+    var t = ev.target; if (!t || (t.id !== 'lreq' && t.id !== 'lgo') || !D || VIEW) return;
+    var lm = $('lmsg'), say = function (x) { if ($('lmsg')) $('lmsg').textContent = x; };
+    if (!navigator.onLine) { say('📴 هالخطوة بدها نت'); return; }
+    t.disabled = true;
+    if (t.id === 'lreq') {
+      post({ act: 'reqlate', t: T, k: K, initData: initData() }).then(function (j) {
+        if (j && j.ok) { D.lateSt = j.approved ? 'approved' : (j.active ? 'active' : 'pending'); store(); lateUI(); say(j.approved ? 'وافق صفوح — اكتب الكود.' : '✓ انبعت الطلب لصفوح'); }
+        else { t.disabled = false; say('⚠️ ما انبعت الطلب (' + esc(j && j.err) + ')'); }
+      }).catch(function () { t.disabled = false; say('⚠️ ما في اتصال — جرّب كمان شوي'); });
+    } else {
+      var code = ($('lcode') || {}).value || '';
+      post({ act: 'unlock', t: T, k: K, initData: initData(), code: code }).then(function (j) {
+        if (j && j.ok) { D.status = 'open'; D.lateUntil = j.until; D.lateSt = 'active'; store(); head(); render(); msg('🔓 الترحيل مفتوح لحد ' + hm(j.until) + ' — كبساتك بتنرحّل لملفك.'); lateUI(); sync(); }
+        else { t.disabled = false; var m = { bad_code: 'الكود غلط' + (j && j.left != null ? ' — باقي ' + j.left + ' محاولات' : ''), expired: 'انتهت صلاحية الكود — اطلب ترحيل من جديد', used: 'الكود انستعمل', locked: 'انقفل بعد محاولات كتير — اطلب ترحيل من جديد', no_grant: 'ما في موافقة لسا' }; say('⚠️ ' + (m[j && j.err] || ('ما اشتغل (' + esc(j && j.err) + ')'))); }
+      }).catch(function () { t.disabled = false; say('⚠️ ما في اتصال — جرّب كمان شوي'); });
+    }
+  }, true);
+
   // ── start
   function boot(ses, ops) {
     var pend = Q.slice();
@@ -306,7 +345,7 @@ function push(r, fields) {
   if (!initData()) { msg('⚠️ لازم تفتح الصفحة من زر البوت جوّا التلغرام.'); return; }
   if (navigator.onLine) {
     post({ act: 'load', t: T, k: K, initData: initData() }).then(function (j) {
-      if (j && j.ok) { j.ses.view = !!j.view; boot(j.ses, j.ops); msg(''); if (j.ses.status !== 'open') msg('🔒 انقفل خط اليوم وانسجّل بالملف.'); }
+      if (j && j.ok) { j.ses.view = !!j.view; boot(j.ses, j.ops); msg(''); if (j.ses.status !== 'open' && !(j.late && j.late.st === 'active')) msg('🔒 انقفل خط اليوم وانسجّل بالملف.'); lateApply(j.late); }
       else if (!cached) msg(j && j.err === 'not_yours' ? '⛔ هالخط مو إلك.' : (j && j.err === 'bad_link' ? '⚠️ الرابط مو صالح أو انتهى.' : '⚠️ ما قدرت حمّل الخط (' + esc(j && j.err) + ') — جرّب كمان شوي.'));
     }).catch(function () { if (!cached) msg('📴 ما في نت — افتح الخط مرة وحدة وانت متصل، وبعدها بيشتغل أوفلاين.'); });
   } else if (!cached) msg('📴 ما في نت — افتح الخط مرة وحدة وانت متصل، وبعدها بيشتغل أوفلاين.');
