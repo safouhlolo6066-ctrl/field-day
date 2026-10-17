@@ -44,6 +44,8 @@ h1{margin:0;font-size:1.65rem;line-height:1.1;letter-spacing:-.02em;font-weight:
 .chips{display:flex;flex-direction:column;gap:5px;align-items:flex-end}.tm{font-size:.72rem;font-weight:600;background:rgba(52,199,89,.14);color:#1f8a3b;border-radius:999px;padding:3px 9px;white-space:nowrap;text-decoration:none}.lc{background:rgba(0,122,255,.12);color:var(--blue)}.ofl{background:rgba(255,149,0,.16);color:#a35700}
 .goal{font-size:.82rem;background:rgba(0,122,255,.07);color:var(--ink);border-radius:12px;padding:9px 11px;margin-top:10px;line-height:1.65}
 .st{font-size:.76rem;color:var(--sub);margin-top:8px;line-height:1.5}
+.c.miss{background:rgba(255,59,48,.08);box-shadow:inset 0 0 0 1.5px rgba(255,59,48,.55),var(--sh)}.c.miss::before{background:var(--red)}
+.mm{font-size:.8rem;font-weight:700;background:rgba(255,59,48,.15);color:#c42b1c;border-radius:10px;padding:7px 10px;margin-top:9px}
 .dq{font-size:.8rem;background:rgba(255,149,0,.14);color:#a35700;border-radius:10px;padding:7px 10px;margin-top:9px}
 .row{display:flex;gap:8px;margin-top:10px}
 .row button{flex:1;padding:11px 6px;border-radius:12px;border:0;background:var(--fill);font:inherit;font-size:.92rem;font-weight:600;color:var(--ink);transition:transform .1s ease-out,background .2s,color .2s}
@@ -134,13 +136,13 @@ window.__tgReady.then(function () {
   // ── state
   function applyOp(o) {
     if (o.t === 'order') { if (o.rows && o.rows.length) D.order = o.rows; return; }
-    var x = st(o.r); ['visited', 'bought', 'reason', 'note', 'phone', 'lat', 'lng', 'acc', 'kind', 'name', 'area', 'delreq', 'delreason', 'gid'].forEach(function (k) { if (o[k] != null) x[k] = o[k]; });
+    var x = st(o.r); ['visited', 'bought', 'reason', 'note', 'phone', 'lat', 'lng', 'acc', 'kind', 'name', 'area', 'delreq', 'delreason', 'gid', 'namereq', 'newname'].forEach(function (k) { if (o[k] != null) x[k] = o[k]; });
     if (o.vt) x.vt = o.vt; else if (o.ats && o.visited === '1' && !x.vt) x.vt = hm(o.ats);
     if (o.off) x.off = 1;
   }
   function st(r) { if (!S[r]) S[r] = { r: r }; return S[r]; }
   function shops() {
-    var base = (D.shops || []).map(function (s) { return { r: +s.r, g: s.g, n: s.n, p: s.p, s: s.s, t: s.t, a: s.a, pv: s.pv, ps: s.ps, sl: s.sl }; });
+    var base = (D.shops || []).map(function (s) { return { r: +s.r, g: s.g, n: s.n, p: s.p, s: s.s, t: s.t, a: s.a, pv: s.pv, ps: s.ps, sl: s.sl, m: s.m ? 1 : 0 }; });
     Object.keys(S).forEach(function (k) { var x = S[k]; if (+k >= 2000 && x.kind === 'new') base.push({ r: +k, g: 'جديد', n: x.name + (x.area && String(x.name).indexOf(x.area) < 0 ? ' / ' + x.area : ''), p: x.phone || '', s: '🆕 زبون جديد — انضاف اليوم', isNew: 1 }); });
     Object.keys(S).forEach(function (k) { var x = S[k]; if (+k >= 5000 && x.kind === 'ex' && x.name) base.push({ r: +k, g: x.gid || 'اضطراري', n: x.name, p: x.phone || '', s: '🚶 زيارة اضطرارية — من خط ' + (x.area || ''), isOff: 1 }); });
     var pos = {}; (D.order || []).forEach(function (r, i) { pos[r] = i; });
@@ -191,7 +193,7 @@ function push(r, fields) {
   function card(s, i) {
     var x = S[s.r] || {}, v = vis(s), b = buy(s), no = x.visited === '0', nb = v && x.bought === '0';
     if (sorting) return '<div class="c srt"><span class="n">' + (i + 1) + '</span><div class="tt nm">' + esc(s.n) + '</div><button data-m="top" data-r="' + s.r + '">⤒</button><button data-m="up" data-r="' + s.r + '">▲</button><button data-m="dn" data-r="' + s.r + '">▼</button></div>';
-    var cls = v ? (b ? ' ok' : (nb ? ' nb' : ' vis')) : (no ? ' nv' : '');
+    var cls = v ? (b ? ' ok' : (nb ? ' nb' : ' vis')) : (no ? ' nv' : (s.m ? ' miss' : ''));
     var ph = x.phone || s.p || '';
     var h = '<div class="c' + cls + '" id="c' + s.r + '"><div class="hd"><span class="n">' + (i + 1) + '</span><div class="tt"><div class="nm">' + esc(s.n) + '</div><div class="mt">'
       + (s.isNew ? '🆕 جديد' : 'رقم ' + esc(s.g || '—')) + (ph && !/^x+$/i.test(ph) ? ' · <a href="tel:' + esc(ph.split('/')[0].trim()) + '">☎ ' + esc(ph) + '</a>' : ' · ☎ —') + '</div></div><div class="chips">'
@@ -200,6 +202,8 @@ function push(r, fields) {
       + '</div></div>';
     if (s.t || s.a) h += '<div class="goal">' + [s.t, s.a ? '💡 ' + String(s.a).split('\n').join('<br>💡 ') : ''].filter(Boolean).join('<br>') + '</div>';
     if (s.s) h += '<div class="st">' + esc(s.s) + '</div>';
+    if (s.m && !v) h += '<div class="mm">🔴 ما انزار المرة الماضية — خليه أولوية اليوم</div>';
+    if (x.namereq === '1' && x.newname) h += '<div class="dq">✏️ طلبت تعديل الاسم إلى «' + esc(x.newname) + '» — ناطر موافقة صفوح</div>';
     if (x.delreq === '1') h += '<div class="dq">⏳ طلبت إلغاء هالزبون — ناطر موافقة صفوح' + (x.delreason ? ' (' + esc(x.delreason) + ')' : '') + '</div>';
     h += '<div class="row"><button data-a="v1" data-r="' + s.r + '" class="' + (v ? 'on g' : '') + '">✅ انزار</button><button data-a="v0" data-r="' + s.r + '" class="' + (no ? 'on r' : '') + '">⭕ لم يتم زيارته</button></div>';
     if (v) {
@@ -210,7 +214,7 @@ function push(r, fields) {
     h += '<div class="ft"><span class="sv" id="sv' + s.r + '"></span><span>'
       + (x.lat ? '' : '<button class="lk gl" data-a="gl" data-r="' + s.r + '">📍 سجّل موقع المحل</button> · ')
       + '<button class="lk ph" data-a="ph" data-r="' + s.r + '">☎ ' + (x.phone ? 'عدّل الرقم' : 'أضف رقم') + '</button>'
-      + (s.isOff || s.isNew ? '' : ' · <button class="lk" data-a="wm" data-r="' + s.r + '">📅 انقل ليوم تاني</button>') + (s.isOff ? '' : s.isNew ? ' · <button class="lk" data-a="nx" data-r="' + s.r + '">🗑️ احذف</button>' : (x.delreq === '1' ? '' : ' · <button class="lk" data-a="dq" data-r="' + s.r + '">🗑️ طلب إلغاء</button>')) + '</span></div></div>';
+      + (s.isOff || s.isNew ? '' : ' · <button class="lk" data-a="wm" data-r="' + s.r + '">📅 انقل ليوم تاني</button>') + (s.isOff ? '' : s.isNew ? ' · <button class="lk" data-a="nx" data-r="' + s.r + '">🗑️ احذف</button>' : (x.delreq === '1' ? '' : ' · <button class="lk" data-a="dq" data-r="' + s.r + '">🗑️ طلب إلغاء</button>')) + (s.isOff || x.namereq === '1' ? '' : ' · <button class="lk" data-a="nm" data-r="' + s.r + '">✏️ طلب تعديل الاسم</button>') + '</span></div></div>';
     return h;
   }
   function visible(s) { var x = S[s.r] || {}; if (sorting) return true; if (q && norm(s.n + ' ' + s.g + ' ' + s.p + ' ' + (x.phone || '')).indexOf(q) < 0) return false;
@@ -277,6 +281,7 @@ function push(r, fields) {
     if (a2 === 'wu') { push(r1, { kind: '', area: '' }); render(); return; }
     if (a2 === 'ph') { ask('☎ رقم الهاتف', [{ ph: '09xxxxxxxx', val: x.phone || '', type: 'tel' }], 'احفظ', function (v) { var np = v[0].replace(/[^\d+]/g, ''); if (np && np.length < 6) return; push(r1, { phone: np }); render(); }); return; }
     if (a2 === 'dq') { ask('🗑️ ليش بدك تلغي هالزبون؟ (بموافقة صفوح)', [{ ph: 'سكّر، ما بيتعامل، مكرر…' }], 'ابعت الطلب', function (v) { push(r1, { delreq: '1', delreason: v[0] }); render(); }, true); return; }
+    if (a2 === 'nm') { ask('✏️ الاسم الصحيح للزبون' + (r1 < 1000 ? ' (بموافقة صفوح)' : ''), [{ ph: 'الاسم الصحيح…', val: '' }], 'ابعت', function (v) { var nn = String(v[0] || '').trim(); if (nn.length < 2) return; if (r1 >= 1000) push(r1, { name: nn }); else push(r1, { namereq: '1', newname: nn }); render(); }); return; }
     if (a2 === 'nx') { ask('تحذف هالزبون الجديد؟', [], 'احذف', function () { push(r1, { kind: 'newx' }); render(); }, true); return; }
     render(); var e3 = $('sv' + r1); if (e3) e3.textContent = navigator.onLine ? '✓ انحفظ' : '✓ انحفظ عالموبايل — بينبعت لما يرجع النت';
   });
