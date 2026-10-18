@@ -89,7 +89,7 @@ window.__tgReady.then(function () {
   'use strict';
   var API = 'https://script.google.com/macros/s/AKfycbzIq8kkedtqxzlBzPGG53Qr1crAMgeUK6pbTs3necPz_cWtW3swKI9r34RrOkff0gFeGA/exec';
   var qs = new URLSearchParams(location.search), T = (qs.get('t') || '').replace(/[^a-z0-9]/g, ''), K = (qs.get('k') || '').replace(/[^A-Za-z0-9]/g, '');
-  if (qs.get('s') === '1') API = 'https://numskybulgqlhyusttye.supabase.co/functions/v1/line-page';
+  if (qs.get('s') !== '0') API = 'https://numskybulgqlhyusttye.supabase.co/functions/v1/line-page';
   var TG = window.Telegram && window.Telegram.WebApp;
   try { if (TG) { TG.ready(); TG.expand(); if (TG.colorScheme === 'dark') document.documentElement.style.colorScheme = 'dark'; } } catch (e) {}
   var LS = 'jl_' + T;
