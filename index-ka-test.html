@@ -142,7 +142,7 @@ window.__tgReady.then(function () {
   // ── state
   function applyOp(o) {
     if (o.t === 'order') { if (o.rows && o.rows.length) D.order = o.rows; return; }
-    var x = st(o.r); ['visited', 'bought', 'reason', 'note', 'phone', 'lat', 'lng', 'acc', 'kind', 'name', 'area', 'delreq', 'delreason', 'gid', 'namereq', 'newname', 'shelf', 'stock', 'ph', 'fixw'].forEach(function (k) { if (o[k] != null) x[k] = o[k]; });
+    var x = st(o.r); ['visited', 'bought', 'reason', 'note', 'phone', 'lat', 'lng', 'acc', 'kind', 'name', 'area', 'delreq', 'delreason', 'gid', 'namereq', 'newname', 'shelf', 'stock', 'brands', 'ph', 'fixw'].forEach(function (k) { if (o[k] != null) x[k] = o[k]; });
     if (o.vt) x.vt = o.vt; else if (o.ats && o.visited === '1' && !x.vt) x.vt = hm(o.ats);
     if (o.off) x.off = 1;
   }
@@ -202,14 +202,17 @@ function push(r, fields) {
   function kaBlock(s, x) {
     var h = '', fx = x.fxl || [];
     (s.w || []).filter(function (w) { return fx.indexOf(w.id) < 0; }).forEach(function (w) { h += '<div class="dq">⚠️ <b>تنبيه من الإدارة</b> (' + esc(w.at || '') + '): ' + esc(w.text) + (VIEW ? '' : '<br><label><input type="checkbox" data-r="' + s.r + '" data-fw="' + w.id + '"> تم تصحيحها اليوم</label>') + '</div>'; });
-    if (VIEW) { h += '<div class="row"><input type="text" id="kw' + s.r + '" placeholder="⚠️ تحذير للزيارة الجاية…" style="flex:1"><button data-a="kw" data-r="' + s.r + '">أرسل</button></div>'; if (x.shelf) h += '<div class="st">الرف: ' + esc(x.shelf) + (x.stock ? ' — ' + esc(x.stock) : '') + '</div>'; return h; }
+    if (VIEW) { h += '<div class="row"><input type="text" id="kw' + s.r + '" placeholder="⚠️ تحذير للزيارة الجاية…" style="flex:1"><button data-a="kw" data-r="' + s.r + '">أرسل</button></div>'; if (x.shelf || x.brands) h += '<div class="st">الرف: ' + esc(x.shelf || '—') + ' · 🏷️ ' + esc(x.brands || 'ولا علامة') + (x.stock ? ' — ' + esc(x.stock) : '') + '</div>'; return h; }
     h += '<div class="st">📸 صورة الرف (إلزامية قبل تسجيل الزيارة): ' + (x.ph ? '✅ انبعتت' : '❌ لسا') + '</div><input type="file" accept="image/*" capture="environment" data-r="' + s.r + '" data-ph="1">';
     h += '<select aria-label="حالة الرف" data-r="' + s.r + '" data-k="shelf"><option value="">— حالة الرف —</option>' + ['ممتاز ومرتب', 'مقبول', 'مبعثر', 'ناقص أصناف', 'فاضي'].map(function (o) { return '<option' + (o === x.shelf ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select>';
+    var bl = String(x.brands || '').split(',');
+    h += '<div class="st">🏷️ تواجد علامات جينا:</div><div class="row">' + ['حليب', 'حلويات', 'البيرتو'].map(function (b) { return '<label style="flex:1"><input type="checkbox" data-r="' + s.r + '" data-br="' + b + '"' + (bl.indexOf(b) >= 0 ? ' checked' : '') + '> ' + b + '</label>'; }).join('') + '</div>';
     h += '<textarea data-r="' + s.r + '" data-k="stock" rows="1" placeholder="📦 المخزون / الأصناف الناقصة">' + esc(x.stock || '') + '</textarea>';
     return h;
   }
   function kaChange(t, r) {
     if (t.getAttribute('data-ph')) { var f = t.files && t.files[0]; if (!f) return true; if (!navigator.onLine) { msg('📴 ما في نت — الصورة بدها اتصال.'); return true; } msg('⏳ عم ترفع الصورة…'); kaShrink(f, function (d) { post({ act: 'photo', t: T, k: K, initData: initData(), r: r, photo: d }).then(function (j) { if (j && j.ok) { st(r).ph = '1'; msg(''); toast('📸 انبعتت الصورة'); render(); } else msg('⚠️ فشل رفع الصورة، جرّب مرة تانية.'); }).catch(function () { msg('⚠️ فشل رفع الصورة، جرّب مرة تانية.'); }); }); return true; }
+    if (t.getAttribute('data-br')) { var xb = st(r), cur = String(xb.brands || '').split(',').filter(Boolean), bn = t.getAttribute('data-br'); cur = cur.filter(function (z) { return z !== bn; }); if (t.checked) cur.push(bn); push(r, { brands: cur.join(',') }); return true; }
     if (t.getAttribute('data-fw')) { var id = +t.getAttribute('data-fw'); var x = st(r); x.fxl = (x.fxl || []).concat([id]); push(r, { fixw: id }); render(); return true; }
     if (t.getAttribute('data-k') === 'shelf') { push(r, { shelf: t.value }); var e = $('sv' + r); if (e) e.textContent = '✓ انحفظ'; return true; }
     if (t.getAttribute('data-k') === 'stock') { push(r, { stock: t.value }); var e2 = $('sv' + r); if (e2) e2.textContent = '✓ انحفظ'; return true; }
