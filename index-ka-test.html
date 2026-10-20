@@ -200,7 +200,7 @@ function push(r, fields) {
   // ── كبار العملاء (D.ka فقط): صورة رف إلزامية + حالة الرف + مخزون + تحذيرات
   function kaShrink(file, cb) { var fr = new FileReader(); fr.onload = function () { var im = new Image(); im.onload = function () { var m = 1280, sc = Math.min(1, m / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.round(im.width * sc); c.height = Math.round(im.height * sc); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); cb(c.toDataURL('image/jpeg', 0.7)); }; im.src = fr.result; }; fr.readAsDataURL(file); }
   function kaBlock(s, x) {
-    var h = '<div class="mt">🔖 نسخة كبار العملاء KA-v5 · صور للإدارة</div>', fx = x.fxl || [];
+    var h = '<div class="mt">🔖 نسخة كبار العملاء KA-v6 · صور للإدارة</div>', fx = x.fxl || [];
     (s.w || []).filter(function (w) { return fx.indexOf(w.id) < 0; }).forEach(function (w) { h += '<div class="dq">⚠️ <b>تنبيه من الإدارة</b> (' + esc(w.at || '') + '): ' + esc(w.text) + (VIEW ? '' : '<br><label><input type="checkbox" data-r="' + s.r + '" data-fw="' + w.id + '"> تم تصحيحها اليوم</label>') + '</div>'; });
     if (VIEW) { if (x.ph) h += '<div class="row"><button data-a="kp" data-r="' + s.r + '">📸 اعرض صور هالمحل (' + x.ph + ')</button>' + (s.r === 4 ? '<button data-a="kp" data-r="0">📸 كل صور اليوم</button>' : '') + '</div>'; else if (s.r === 4) h += '<div class="row"><button data-a="kp" data-r="0">📸 كل صور اليوم</button></div>'; h += '<div class="row"><input type="text" id="kw' + s.r + '" placeholder="⚠️ تحذير للزيارة الجاية…" style="flex:1"><button data-a="kw" data-r="' + s.r + '">أرسل</button></div>'; if (x.shelf || x.brands) h += '<div class="st">الرف: ' + esc(x.shelf || '—') + ' · 🏷️ ' + esc(x.brands || 'ولا علامة') + (x.stock ? ' — ' + esc(x.stock) : '') + '</div>'; return h; }
     h += '<div class="st">📸 صورة الرف (إلزامية قبل تسجيل الزيارة): ' + (x.ph ? '✅ ' + x.ph + ' صورة — فيك تضيف صورة كمان' : '❌ لسا') + '</div><input type="file" accept="image/*" capture="environment" data-r="' + s.r + '" data-ph="1">';
@@ -291,7 +291,8 @@ function push(r, fields) {
     var t = ev.target;
     if (t.id === 'locbtn') { try { if (TG && TG.LocationManager && TG.LocationManager.isInited && !TG.LocationManager.isAccessGranted) TG.LocationManager.openSettings(); else refreshLoc(); } catch (e) { gps(); } return; }
     if (t.id === 'advbtn') { var a = $('adv'); a.style.display = a.style.display === 'block' ? 'none' : 'block'; return; }
-    if (!D || VIEW || D.status !== 'open') return;
+    if (D && VIEW) { var kb0 = t.closest && t.closest('button[data-a="kp"],button[data-a="kw"]'); if (kb0) { var rr0 = +kb0.getAttribute('data-r'); if (kb0.getAttribute('data-a') === 'kw') kaWarn(rr0); else kaPhotos(rr0); } return; }
+    if (!D || D.status !== 'open') return;
     if (t.id === 'offbtn') { offSearch(); return; }
     if (t.id === 'addbtn') { ask('➕ زبون جديد', [{ ph: 'اسم المحل' }, { ph: 'المنطقة', val: D.area || '' }, { ph: 'رقم الهاتف (إذا موجود)', type: 'tel' }], 'أضف', function (v) { if (!v[0]) return;
       var r = 2000; Object.keys(S).forEach(function (k) { if (+k >= r) r = +k + 1; }); push(r, stampLoc(r, { kind: 'new', name: v[0], area: v[1], phone: v[2].replace(/[^\d+]/g, ''), visited: '1', vt: hm(Date.now()) })); filt = 'all'; render(); }); return; }
