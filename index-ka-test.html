@@ -200,14 +200,14 @@ function push(r, fields) {
   // ── كبار العملاء (D.ka فقط): صورة رف إلزامية + حالة الرف + مخزون + تحذيرات
   function kaShrink(file, cb) { var fr = new FileReader(); fr.onload = function () { var im = new Image(); im.onload = function () { var m = 1280, sc = Math.min(1, m / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.round(im.width * sc); c.height = Math.round(im.height * sc); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); cb(c.toDataURL('image/jpeg', 0.7)); }; im.src = fr.result; }; fr.readAsDataURL(file); }
   function kaBlock(s, x) {
-    var h = '', fx = x.fxl || [];
+    var h = '<div class="mt">🔖 نسخة كبار العملاء KA-v3 · تصوير + علامات</div>', fx = x.fxl || [];
     (s.w || []).filter(function (w) { return fx.indexOf(w.id) < 0; }).forEach(function (w) { h += '<div class="dq">⚠️ <b>تنبيه من الإدارة</b> (' + esc(w.at || '') + '): ' + esc(w.text) + (VIEW ? '' : '<br><label><input type="checkbox" data-r="' + s.r + '" data-fw="' + w.id + '"> تم تصحيحها اليوم</label>') + '</div>'; });
     if (VIEW) { h += '<div class="row"><input type="text" id="kw' + s.r + '" placeholder="⚠️ تحذير للزيارة الجاية…" style="flex:1"><button data-a="kw" data-r="' + s.r + '">أرسل</button></div>'; if (x.shelf || x.brands) h += '<div class="st">الرف: ' + esc(x.shelf || '—') + ' · 🏷️ ' + esc(x.brands || 'ولا علامة') + (x.stock ? ' — ' + esc(x.stock) : '') + '</div>'; return h; }
     h += '<div class="st">📸 صورة الرف (إلزامية قبل تسجيل الزيارة): ' + (x.ph ? '✅ انبعتت' : '❌ لسا') + '</div><input type="file" accept="image/*" capture="environment" data-r="' + s.r + '" data-ph="1">';
     h += '<select aria-label="حالة الرف" data-r="' + s.r + '" data-k="shelf"><option value="">— حالة الرف —</option>' + ['ممتاز ومرتب', 'مقبول', 'مبعثر', 'ناقص أصناف', 'فاضي'].map(function (o) { return '<option' + (o === x.shelf ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select>';
     var bl = String(x.brands || '').split(',');
     h += '<div class="st">🏷️ تواجد علامات جينا:</div><div class="row">' + ['حليب', 'حلويات', 'البيرتو'].map(function (b) { return '<label style="flex:1"><input type="checkbox" data-r="' + s.r + '" data-br="' + b + '"' + (bl.indexOf(b) >= 0 ? ' checked' : '') + '> ' + b + '</label>'; }).join('') + '</div>';
-    h += '<textarea data-r="' + s.r + '" data-k="stock" rows="1" placeholder="📦 المخزون / الأصناف الناقصة">' + esc(x.stock || '') + '</textarea>';
+    h += '<textarea data-r="' + s.r + '" data-k="stock" rows="1" placeholder="📦 المخزون / الأصناف الناقصة (اختياري)">' + esc(x.stock || '') + '</textarea>';
     return h;
   }
   function kaChange(t, r) {
