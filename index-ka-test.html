@@ -200,7 +200,7 @@ function push(r, fields) {
   // ── كبار العملاء (D.ka فقط): صورة رف إلزامية + حالة الرف + مخزون + تحذيرات
   function kaShrink(file, cb) { var fr = new FileReader(); fr.onload = function () { var im = new Image(); im.onload = function () { var m = 1280, sc = Math.min(1, m / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.round(im.width * sc); c.height = Math.round(im.height * sc); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); cb(c.toDataURL('image/jpeg', 0.7)); }; im.src = fr.result; }; fr.readAsDataURL(file); }
   function kaBlock(s, x) {
-    var h = '<div class="mt">🔖 نسخة كبار العملاء KA-v6 · صور للإدارة</div>', fx = x.fxl || [];
+    var h = '<div class="mt">🔖 نسخة كبار العملاء KA-v7 · صور للإدارة</div>', fx = x.fxl || [];
     (s.w || []).filter(function (w) { return fx.indexOf(w.id) < 0; }).forEach(function (w) { h += '<div class="dq">⚠️ <b>تنبيه من الإدارة</b> (' + esc(w.at || '') + '): ' + esc(w.text) + (VIEW ? '' : '<br><label><input type="checkbox" data-r="' + s.r + '" data-fw="' + w.id + '"> تم تصحيحها اليوم</label>') + '</div>'; });
     if (VIEW) { if (x.ph) h += '<div class="row"><button data-a="kp" data-r="' + s.r + '">📸 اعرض صور هالمحل (' + x.ph + ')</button>' + (s.r === 4 ? '<button data-a="kp" data-r="0">📸 كل صور اليوم</button>' : '') + '</div>'; else if (s.r === 4) h += '<div class="row"><button data-a="kp" data-r="0">📸 كل صور اليوم</button></div>'; h += '<div class="row"><input type="text" id="kw' + s.r + '" placeholder="⚠️ تحذير للزيارة الجاية…" style="flex:1"><button data-a="kw" data-r="' + s.r + '">أرسل</button></div>'; if (x.shelf || x.brands) h += '<div class="st">الرف: ' + esc(x.shelf || '—') + ' · 🏷️ ' + esc(x.brands || 'ولا علامة') + (x.stock ? ' — ' + esc(x.stock) : '') + '</div>'; return h; }
     h += '<div class="st">📸 صورة الرف (إلزامية قبل تسجيل الزيارة): ' + (x.ph ? '✅ ' + x.ph + ' صورة — فيك تضيف صورة كمان' : '❌ لسا') + '</div><input type="file" accept="image/*" capture="environment" data-r="' + s.r + '" data-ph="1">';
@@ -278,12 +278,25 @@ function push(r, fields) {
     var lock = VIEW || D.status !== 'open';
     if (lock) document.querySelectorAll('#list button:not([data-a="kw"]):not([data-a="kp"]),#list select,#list textarea').forEach(function (e) { e.disabled = true; });
   }
+
+  function kaOverlay() {
+    if (!D || !D.ka || VIEW || document.getElementById('kaov')) return;
+    var ws = [];
+    (D.shops || []).forEach(function (s) { (s.w || []).forEach(function (w) { ws.push('<div style="background:#fff3f3;border:2px solid #d33;border-radius:12px;padding:12px;margin:8px 0"><b>' + esc(s.n) + '</b><br>⚠️ ' + esc(w.text) + '</div>'); }); });
+    if (!ws.length) return;
+    var o = document.createElement('div'); o.id = 'kaov';
+    o.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+    o.innerHTML = '<div style="background:#fff;color:#111;border-radius:16px;max-width:480px;width:100%;max-height:85vh;overflow:auto;padding:16px;direction:rtl;text-align:right"><h2 style="margin:0 0 8px">🚨 تحذيرات من الإدارة</h2><div>' + ws.join('') + '</div><button id="kaovb" style="width:100%;padding:14px;margin-top:10px;font-size:16px;border-radius:10px;border:0;background:#d33;color:#fff">فهمت — ابدأ</button></div>';
+    document.body.appendChild(o);
+    document.getElementById('kaovb').onclick = function () { o.remove(); };
+  }
   function head() {
     $('h1').textContent = '🧭 خط اليوم — ' + D.rep;
     $('sub').textContent = String(D.dateTxt || D.day || '') + ' · ' + D.tab + (D.area ? ' · ' + D.area : '') + (String(D.day) > '2090' ? ' · 🧪 تجربة' : '');
     if (D.advice) { $('adv').innerHTML = String(D.advice).replace(/\n/g, '<br>'); $('advbtn').style.display = 'inline-block'; }
     $('view').style.display = VIEW ? 'block' : 'none';
     if (D.status !== 'open') msg('🔒 انقفل خط اليوم وانسجّل بالملف — ما عاد فيك تعدّل.');
+    try { kaOverlay(); } catch (e) {}
   }
 
   // ── events
